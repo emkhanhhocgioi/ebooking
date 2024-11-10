@@ -1,35 +1,54 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Platform ,Image} from "react-native";
 import { useNavigation } from 'expo-router';
 import React, { useState } from 'react';
 import axios from 'axios';
 
+var baseUrl = "http://localhost:5000"
+
+if(Platform.OS ==="android"){
+ baseUrl = "http://10.0.2.2:5000"
+}
+if(Platform.OS ==="ios"){
+    baseUrl = "http://172.20.10.9:5000"
+   }
 export default function UserLogin() {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+     
 
     const TestLogin = async () => {
+        const data = {
+            uname: username,
+            password: password
+        };
+        console.log(data)
         try {
-            
-            const res = await axios.get(`http://10.0.2.2:5000/login/${username}`);
-            
-            if (res.data && res.data.password === password) {
-               
-                navigation.navigate('home');
+            const res = await axios.post(`${baseUrl}/api/login`, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log(res.data);
+            navigation.navigate('home', {username:username}) 
+        } catch (err) {
+            if (err.response) {
+                
+                console.log('Error Response:', err.response.data);
+            } else if (err.request) {
+              
+                console.log('Error Request:', err.request);
             } else {
-                console.log("Response Data:", res.data);  
-                alert('Invalid username or password');
+              
+                console.log('Error Message:', err.message);
             }
-        } catch (error) {
-            console.log("Error response data:", error.response?.data);
-            console.log("Error response status:", error.response?.status);
-            console.log("Error response headers:", error.response?.headers);
-            alert('An error occurred during login');
         }
     };
 
     return (
         <View style={styles.login_container}>
+            <LdImg></LdImg>
+            
             <TextInput
                 style={styles.input}
                 placeholder="Username"
@@ -51,7 +70,16 @@ export default function UserLogin() {
         </View>
     );
 }
-
+const LdImg = () => {
+    return (
+        <View>
+            <Image
+                source={require('../assets/images/icons.png')}
+                style={styles.image}
+            />
+        </View>
+    );
+};
 const styles = StyleSheet.create({
     login_container: {
         flex: 1,
@@ -80,4 +108,11 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
+      image: {
+      width: 200,
+      height: 200,
+      resizeMode: 'cover',
+      borderRadius: 100,
+      marginBottom: 20, // Margin for spacing between image and inputs
+  },
 });

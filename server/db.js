@@ -27,6 +27,7 @@ const componentSchema = new mongoose.Schema({
     
     componentName: { type: String, required: true },  
     componentType: { type: String, required: true },  
+    componentPrice:{type: String, required:true},
     images: [{
       name: { type: String, required: true, unique: true }, 
       data: { type: String, required: true },  
@@ -51,6 +52,7 @@ app.post('/inputs', upload.single('image'), async (req, res) => {
         
         componentName: req.body.componentName,
         componentType: req.body.componentType,
+        componentPrice: req.body.componentPrice,
         images: [{
             name: req.file.originalname,
             data: base64Image,
@@ -96,6 +98,7 @@ app.get('/outputs', async (req, res) => {
             componentID :doc._id,
             componentName: doc.componentName,
             componentType: doc.componentType,
+            componentPrice: doc.componentPrice,
             images: doc.images.map(image => ({
                 name: image.name,
                 data: image.data, 
@@ -152,6 +155,7 @@ app.get('/getdata/:id', async (req, res) => {
             componentID: document._id,
             componentName: document.componentName,
             componentType: document.componentType,
+            componentPrice: document.componentPrice,
             images: document.images.map(image => ({
                 name: image.name,
                 data: image.data, 
@@ -185,6 +189,7 @@ app.post('/update/:id', upload.single('image'), async (req, res) => {
             {
                 componentName: req.body.componentName,
                 componentType: req.body.componentType,
+                componentPrice:req.body.componentPrice,
                 images: [{
                     name: req.file.originalname,
                     data: base64Image,
@@ -194,12 +199,10 @@ app.post('/update/:id', upload.single('image'), async (req, res) => {
             { new: true } 
         );
 
-     
         if (!updatedDocument) {
             return res.status(404).json({ success: false, message: 'Document not found' });
         }
 
-        
         res.status(200).json({
             success: true,
             message: 'Document updated successfully',
@@ -210,38 +213,77 @@ app.post('/update/:id', upload.single('image'), async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to update document', error: err.message });
     }
 });
-const accountSchema = new mongoose.Schema({
-    username: { type: String, required: true },  
-    password: { type: String, required: true },  
+
+
+const accounts = new mongoose.Schema({
+    Username: { type: String, required: true },  
+    Email:{type: String, required: true } ,
+    Password: { type: String, required: true }, 
+    
 });
 
-const accountmd = mongoose.model('accounts', accountSchema);
+const taikhoan = new mongoose.model('accounts', accounts)
+app.post('/signup', async (req, res) => {
+    const { username, email, password } = req.body;
+    console.log(req.body);
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'No data' });
+    }
+    try {
+     
+        const existingUser = await taikhoan.findOne({ Email: email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
 
-app.get('/login/:username', async (req, res) => {
-    const { username } = req.params;  
     
+        const document = new taikhoan({
+            Username: username,
+            Email: email,
+            Password: password 
+        });
+
+        await document.save();
+        return res.status(201).json({
+            success: true,
+            message: 'Account created successfully',
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    console.log(req.body);
+
+    // Validate that username and password are provided
+    if (!username || !password) {
+        return res.status(400).send('Username and password are required');
+    }
+
     try {
        
-        const document = await accountmd.findOne({ username: username });
+        const document = await taikhoan.findOne({ Username: username });
+
         
         if (!document) {
-          
-            return res.status(404).json({ message: "User not found" });
+            return res.status(401).send('Wrong username or password because not found'); // 401 Unauthorized
         }
 
         
-        const formattedDocument = {
-            username: document.username, 
-            password: document.password  
-        };
+        if (document.Password != password) { // Change this to password comparison if hashed
+            return res.status(401).send('Wrong username or password'+document.Password+password); // 401 Unauthorized
+        }
 
-      
-        res.json(formattedDocument);
-    } catch (error) {
-       
-        res.status(500).json({ message: "An error occurred", error: error.message });
+        return res.send('Login success');
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Server error'); // Respond with a server error status
     }
 });
+
 
 
 

@@ -1,7 +1,7 @@
 import { TextInput, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useNavigation } from 'expo-router';
 
-const StartPage = () => {
+const index = () => {
 
 
   return (
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StartPage;
+export default index;

@@ -1,33 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { TextInput, View, StyleSheet, TouchableOpacity, Text, Alert, Image } from 'react-native';
+import { TextInput, View, StyleSheet, TouchableOpacity, Text, Alert, Image, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
+
+var baseUrl = "http://localhost:5000"
+
+if(Platform.OS ==="android"){
+ baseUrl = "http://10.0.2.2:5000"
+}
+if(Platform.OS ==="ios"){
+    baseUrl = "http://172.20.10.9:5000"
+   }
 
 const Updatecpn = () => {
     const route = useRoute();
     const { componentID } = route.params; 
     const [componentName, setComponentName] = useState('');
     const [componentType, setComponentType] = useState('');
+    const [componentPrice,setComponentPrice] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
     const [originalData, setOriginalData] = useState({ name: '', type: '', image: null });
 
-    // Fetching data by component ID
+    
     const fetchingItem = async () => {
         try {
-            const res = await axios.get(`http://10.0.2.2:5000/getdata/${componentID}`);
+            const res = await axios.get(`${baseUrl}/getdata/${componentID}`);
             const data = res.data;
-
-            // Populate the state variables with fetched data
+    
             setComponentName(data.componentName || '');
             setComponentType(data.componentType || '');
-
-            // If there is an image, set it
+            setComponentPrice(data.componentPrice || '');
+    
             if (data.images && data.images.length > 0) {
                 const imageUri = `data:image/${data.images[0].contentType};base64,${data.images[0].data}`;
                 setSelectedImage(imageUri);
-                setOriginalData({ name: data.componentName, type: data.componentType, image: imageUri });
             }
+    
+           
+            setOriginalData({ 
+                name: data.componentName, 
+                type: data.componentType, 
+                price: data.componentPrice, 
+                image: data.images && data.images.length > 0 ? `data:image/${data.images[0].contentType};base64,${data.images[0].data}` : null 
+            });
         } catch (error) {
             console.log(error);
             Alert.alert("Error", error.message || "Failed to fetch component data.");
@@ -52,43 +68,36 @@ const Updatecpn = () => {
         }
     };
 
-    const handleChange = async () => {
-        // Check if any data has changed
-        const hasChanged = 
-            componentName !== originalData.name ||
-            componentType !== originalData.type ||
-            selectedImage !== originalData.image;
-
-        if (!hasChanged) {
-            Alert.alert('No Changes', 'No changes detected. Please update at least one field.');
-            return; // Exit the function if no changes were made
-        }
-
-        const formData = createFormData(selectedImage);
+    const handleSaveChanges = async () => {
         try {
-            const res = await axios.post(
-                `http://10.0.2.2:5000/update/${componentID}`, 
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                }
-            );
-
-            if (res.status === 200) {
-                Alert.alert('Success', 'Component updated successfully!');
-                // Update original data after successful change
-                setOriginalData({ name: componentName, type: componentType, image: selectedImage });
-            } else {
-                Alert.alert('Error', 'Failed to update component. Please try again.');
+            const response = await axios.post(`${baseUrl}/api/updateuser`, {
+                username: uname,  
+                email: newEmail,  
+                desc: newDesc,   
+            });
+    
+          
+            if (response.status === 200) {
+                alert('Profile updated successfully');
+                
+               
+                setModalVisible(false);
+    
+                
+                const updatedUser = response.data.user; 
+                setEmail(updatedUser.Email);  
+                setFollowing(updatedUser.followingcount || 0);  
+                setFollower(updatedUser.followercount || 0);    
+                setImgPrf(updatedUser.imgProfile || '');      
+    
+              
             }
-        } catch (err) {
-            console.log(err);
-            Alert.alert('Error', err.response?.data?.message || 'Failed to update component.');
+        } catch (error) {
+            console.log('Error updating data:', error.response || error);
+            alert('Failed to update profile');
         }
     };
-
+    
     useEffect(() => {
         fetchingItem();
     }, []);
@@ -108,7 +117,7 @@ const Updatecpn = () => {
 
         formData.append('componentName', componentName);
         formData.append('componentType', componentType);
-
+        formData.append('componentPrice', componentPrice);
         return formData;
     };
 
@@ -127,6 +136,12 @@ const Updatecpn = () => {
                 placeholder="Component Type"
                 value={componentType} 
                 onChangeText={setComponentType}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Component Price"
+                value={componentPrice} 
+                onChangeText={setComponentPrice}
             />
 
             {selectedImage && (

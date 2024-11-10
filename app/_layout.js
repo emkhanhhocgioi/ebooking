@@ -7,22 +7,33 @@ import { SafeAreaView, StyleSheet, View } from 'react-native';
 
 
 import StartPage from './HomePage';
-import Inputs from './inputs';
-import LIST from './LIST';
+import Inputs from './(tabs)/inputs';
+import LIST from './(tabs)/LIST';
 import Updatecpn from './updatecp';
 import UserLogin from './login';
+import DangKi from './DangKi';
+import Homscreen from './(tabs)/home';
+
+import HotelDetailScreen from './hotelDetail';
+import UpdateProfileScreen from './updateProfile';
+import ProfileScreen from './(tabs)/userProfie';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <NavigationContainer independent={true}>
-        <Stack.Navigator initialRouteName="login">
-        <Stack.Screen name="home" component={StartPage} />
-          <Stack.Screen name="list" component={LIST} />
-          <Stack.Screen name="ip" component={Inputs} />
-          <Stack.Screen name="update" component={Updatecpn} />
-          <Stack.Screen name="login" component={UserLogin} />
+        <Stack.Navigator initialRouteName="startPage">
+        <Stack.Screen name="startPage" component={StartPage}  options={{ headerShown: false}} />
+          <Stack.Screen name="list" component={LIST} options={{ headerShown: false}}  />
+          <Stack.Screen name="ip" component={Inputs} options={{ headerShown: false}} />
+          <Stack.Screen name="update" component={Updatecpn} options={{ headerShown: false}} />
+          <Stack.Screen name="login" component={UserLogin} options={{ headerShown: false}} />
+          <Stack.Screen name="signup" component={DangKi} options={{ headerShown: false}} />
+          <Stack.Screen name="home" component={Homscreen} options={{ headerShown: false}} />
+         
+          <Stack.Screen name="hoteldetail" component={HotelDetailScreen} options={{ headerShown: false}}/>
+          <Stack.Screen name="update_profile" component={UpdateProfileScreen} options={{ headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

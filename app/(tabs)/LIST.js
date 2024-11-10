@@ -1,6 +1,17 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Alert, Image, Platform } from 'react-native';
+
+var baseUrl = "http://localhost:5000"
+
+if(Platform.OS ==="android"){
+ baseUrl = "http://10.0.2.2:5000"
+}
+
+if(Platform.OS ==="ios"){
+  baseUrl = "http://172.20.10.9:5000"
+
+ }
 
 import { useNavigation } from 'expo-router';
 const LIST = ({navigation}) => {
@@ -10,7 +21,7 @@ const LIST = ({navigation}) => {
   const navigater = useNavigation();
   const fetchingItem = async () => {
     try {
-      const res = await axios.get('http://10.0.2.2:5000/outputs');
+      const res = await axios.get(`${baseUrl}/outputs`);
       setItems(res.data);
     } catch (error) {
       setError('Failed to fetch items. Please try again.');
@@ -23,9 +34,9 @@ const LIST = ({navigation}) => {
   const handleDelete = async (componentID) => {
     console.log("Component ID to delete:", componentID); 
     try {
-        const response = await axios.delete(`http://10.0.2.2:5000/delete/${componentID}`);
+        const response = await axios.delete(`${baseUrl}/delete/${componentID}`);
         Alert.alert(`Successfully deleted component with ID: ${componentID} from the database!`); 
-        // Re-fetch items to update the list after deletion
+        
         fetchingItem();
     } catch (err) {
         console.log(err.response.data); 
@@ -55,7 +66,6 @@ const LIST = ({navigation}) => {
                     const base64Data = imageItem.data.toString('base64');
                     const imageUri = `data:${imageItem.contentType};base64,${base64Data}`;
                     console.log(item);
-
                     return (
                       <Image
                         key={dataIndex}
@@ -69,13 +79,12 @@ const LIST = ({navigation}) => {
                   <Text style={styles.noDataText}>No images available.</Text>
                 )}
               </View>
-
-              
               <View style={styles.textButtonContainer}>
                 <View style={styles.textContainer}>
-                  <Text style={styles.itemText}>ID: {item.componentID}</Text>
+                  
                   <Text style={styles.itemText}>Ten: {item.componentName}</Text>
                   <Text style={styles.itemText}>Loai: {item.componentType}</Text>
+                  <Text style={styles.itemText}>Gia: {item.componentPrice}</Text>
                 </View>
 
                 <View style={styles.buttonContainer}>

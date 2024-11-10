@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { TextInput, View, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
+import { TextInput, View, StyleSheet, TouchableOpacity, Text, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
+
+var baseUrl = "http://localhost:5000"
+
+if(Platform.OS ==="android"){
+ baseUrl = "http://10.0.2.2:5000"
+}
+if(Platform.OS ==="ios"){
+    baseUrl = "http://172.20.10.9:5000"
+   }
 const Inputs = () => {
    
     const [componentName, setComponentName] = useState('');
     const [componentType, setComponentType] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
+    const [componentPrice,setComponentPrice] = useState('');
 
     const pickImageAsync = async () => {
         try {
@@ -43,6 +53,7 @@ const Inputs = () => {
 
         formData.append('componentName', componentName);
         formData.append('componentType', componentType);
+        formData.append('componentPrice',componentPrice)
      
 
         return formData;
@@ -58,7 +69,7 @@ const Inputs = () => {
 
         try {
             const response = await axios.post(
-                'http://10.0.2.2:5000/inputs',
+                `${baseUrl}/inputs`,
                 formData,
                 {
                     headers: {
@@ -88,6 +99,12 @@ const Inputs = () => {
                 placeholder="Component Type"
                 value={componentType}
                 onChangeText={setComponentType}
+            />
+             <TextInput
+                style={styles.input}
+                placeholder="Component Price"
+                value={componentPrice}
+                onChangeText={setComponentPrice}
             />
             
             <TouchableOpacity style={styles.btn} onPress={pickImageAsync}>
