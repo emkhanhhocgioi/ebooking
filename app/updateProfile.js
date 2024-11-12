@@ -11,7 +11,7 @@ if (Platform.OS === "android") {
   baseUrl = "http://172.20.10.9:5000";
 }
 
-const UpdateProfileScreen = () => {
+  const UpdateProfileScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const uname = route.params?.username; // Ensure that the username is correctly passed from the route params

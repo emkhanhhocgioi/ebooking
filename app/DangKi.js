@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { useState } from 'react';
 import { useNavigation } from 'expo-router';
 
+
 var baseUrl = "http://localhost:5000";
 
 if (Platform.OS === "android") {
@@ -11,6 +12,7 @@ if (Platform.OS === "android") {
 if (Platform.OS === "ios") {
     baseUrl = "http://172.20.10.9:5000";
 }
+
 
 export default function DangKi() {
     const navigation = useNavigation();

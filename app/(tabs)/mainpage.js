@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import HotelDetailScreen from '../hotelDetail';
 
 const meetups = [
   {
@@ -37,10 +38,14 @@ const meetups = [
 ];
 
 const MainPage = () => {
+  const [isModalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
 
   const renderMeetupItem = ({ item }) => (
-    <TouchableOpacity activeOpacity={0.7} style={styles.meetupCard} onPress={() => navigation.navigate('hoteldetail')}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={styles.meetupCard}
+      onPress={() => setModalVisible(true)}>
       <Image source={item.image} style={styles.meetupImage} />
       <Text style={styles.locationText}>{item.location}</Text>
       <Text style={styles.titleText}>{item.title}</Text>
@@ -77,21 +82,21 @@ const MainPage = () => {
         contentContainerStyle={styles.meetupList}
       />
 
-      {/* Bottom Navbar */}
-      {/* <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TripsScreen')}>
-          <Icon name="map-outline" size={24} color="#000" />
-          <Text style={styles.navText}>Trips</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('profile')}>
-          <Icon name="person-outline" size={24} color="#000" />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('SettingsScreen')}>
-          <Icon name="settings-outline" size={24} color="#000" />
-          <Text style={styles.navText}>Settings</Text>
-        </TouchableOpacity>
-      </View> */}
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Icon name="close" size={30} color="#000" />
+            </TouchableOpacity>
+            <HotelDetailScreen />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -156,20 +161,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    borderTopColor: '#ddd',
-    borderTopWidth: 1,
-  },
-  navButton: {
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',  // To give a dimmed background
   },
-  navText: {
-    fontSize: 12,
-    color: '#000',
+  modalContent: {
+    backgroundColor: '#fff',
+    width: '100%',
+    height: '100%',  // Make modal content take full screen
+    padding: 20,
+    position: 'relative',  // So we can position the close button absolutely
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 50,
+    padding: 10,
   },
 });
 
