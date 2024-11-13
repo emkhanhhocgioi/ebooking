@@ -12,7 +12,7 @@ import LIST from './LIST';
 import MainPage from './mainpage';
 import ProfileScreen from './userProfie';
 import ScheduleScreen from '../scheduleScreen';
-import StackThing from '../_layout';
+
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function Homscreen() {
@@ -28,6 +28,7 @@ export default function Homscreen() {
         <Tab.Screen
           name="Explore"
           component={MainPage}
+          initialParams={{ username: userName }}
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (

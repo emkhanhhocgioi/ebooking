@@ -5,7 +5,7 @@ const multer = require('multer');
 const {GridFsStorage} = require('multer-gridfs-storage');
 const { route } = require('./accountRoutes');
 
-const {createPost,fecthUserPost} = require('../Controller/PostController')
+const {createPost,fecthUserPost, fecthAllPost, renderPostImage} = require('../Controller/PostController')
 // MongoDB connection string
 
 const storage = new GridFsStorage({
@@ -38,4 +38,6 @@ const upload = multer({storage,
 
 routerPost.post("/createpost",upload.array('file',4),createPost)
 routerPost.get("/getuserpost",fecthUserPost)
+routerPost.get('/getpost',fecthAllPost)
+routerPost.get('/getpostimg',renderPostImage)
 module.exports = routerPost;

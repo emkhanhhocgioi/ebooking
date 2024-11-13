@@ -1,7 +1,17 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-
-const HotelDetailScreen = () => {
+import { View, Text, Image, ScrollView,Platform, TouchableOpacity, StyleSheet } from 'react-native';
+if (Platform.OS === "android") {
+  baseUrl = "http://10.0.2.2:5000";
+} else if (Platform.OS === "ios") {
+  baseUrl = "http://172.20.10.9:5000";
+}
+const HotelDetailScreen = ({hotelData}) => {
+  if(!hotelData){
+    console.log('nothing')
+  }else{
+    console.log('something')
+  }
+  console.log(hotelData)
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -17,7 +27,7 @@ const HotelDetailScreen = () => {
 
       {/* Hotel Image */}
       <Image
-        source={require('C:/Users/hidra/GK2/assets/images/main.png')}
+        source={{uri: `${baseUrl}${hotelData.imgArr[0]}`}}
         style={styles.hotelImage}
       />
 
@@ -39,22 +49,23 @@ const HotelDetailScreen = () => {
         </View>
 
         {/* Hotel Details */}
-        <Text style={styles.hotelName}>The Aston Vill Hotel</Text>
-        <Text style={styles.locationText}>Alice Springs NT 0870, Australia</Text>
-        <Text style={styles.priceText}>$200.7 <Text style={styles.perNight}>/night</Text></Text>
+        <Text style={styles.hotelName}>{hotelData.HotelName}</Text>
+        <Text style={styles.locationText}>{hotelData.Address+','+hotelData.city+","+hotelData.country}</Text>
+        <Text style={styles.priceText}>{hotelData.price}$ <Text style={styles.perNight}>/night</Text></Text>
 
         {/* Description */}
         <Text style={styles.sectionTitle}>Description</Text>
         <Text style={styles.descriptionText}>
-          Aston Hotel, Alice Springs NT 0870, Australia is a modern hotel, elegant 5-star hotel overlooking the sea. Perfect for a romantic, charming <Text style={styles.readMore}>Read More...</Text>
+          Aston {hotelData.describe} 
+          <Text style={styles.readMore}>Read More...</Text>
         </Text>
 
         {/* Preview Images */}
         <Text style={styles.sectionTitle}>Preview</Text>
         <View style={styles.previewContainer}>
-          <Image source={require('C:/Users/hidra/GK2/assets/images/hotelex.jpg')} style={styles.previewImage} />
-          <Image source={require('C:/Users/hidra/GK2/assets/images/hotelex.jpg')} style={styles.previewImage} />
-          <Image source={require('C:/Users/hidra/GK2/assets/images/hotelex.jpg')} style={styles.previewImage} />
+          <Image source={{uri: `${baseUrl}${hotelData.imgArr[1]}`}} style={styles.previewImage} />
+          <Image source={{uri: `${baseUrl}${hotelData.imgArr[2]}`}} style={styles.previewImage} />
+          <Image source={{uri: `${baseUrl}${hotelData.imgArr[3]}`}} style={styles.previewImage} />
         </View>
 
         {/* Booking Button */}

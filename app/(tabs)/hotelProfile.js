@@ -1,3 +1,8 @@
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity,Alert,ScrollView,Switch, StyleSheet, Platform, Modal, TextInput, Button } from 'react-native';
 import { useNavigation } from 'expo-router';
@@ -16,7 +21,7 @@ if (Platform.OS === "android") {
   baseUrl = "http://172.20.10.9:5000";
 }
 
-const ProfileScreen = () => {
+const hotel_detail = () => {
   const route = useRoute();
   const uname = route.params?.username;
   const navigation = useNavigation();
@@ -66,115 +71,115 @@ const ProfileScreen = () => {
 
 
   
-const createNewPost = async () => {
-  const postID = random();
-  const UID = userID;
-  console.log(UID)
- // Assuming 'uname' is defined elsewhere
-  const { hotelname, Address, Price, city, country, describe, Addon, freewifi, freefood } = postDetails;
+// const createNewPost = async () => {
+//   const postID = random();
+//   const UID = userID;
+//   console.log(UID)
+//  // Assuming 'uname' is defined elsewhere
+//   const { hotelname, Address, Price, city, country, describe, Addon, freewifi, freefood } = postDetails;
 
-  // Utility function to validate parameters
-  function validateParams(params) {
-    for (const [key, value] of Object.entries(params)) {
-      if (value === undefined || value === null || value === '') {
-        throw new Error(`Parameter ${key} must be provided`);
-      }
-    }
-  }
+//   // Utility function to validate parameters
+//   function validateParams(params) {
+//     for (const [key, value] of Object.entries(params)) {
+//       if (value === undefined || value === null || value === '') {
+//         throw new Error(`Parameter ${key} must be provided`);
+//       }
+//     }
+//   }
 
-  const formData = new FormData();
+//   const formData = new FormData();
 
-  try {
+//   try {
     
-    validateParams({
-      postID,
-      UID,
-      hotelname,
-      Address,
-      Price,
-      city,
-      country,
-      describe,
-      Addon,
-      freewifi,
-      freefood,
-      selectedImages
-    });
+//     validateParams({
+//       postID,
+//       UID,
+//       hotelname,
+//       Address,
+//       Price,
+//       city,
+//       country,
+//       describe,
+//       Addon,
+//       freewifi,
+//       freefood,
+//       selectedImages
+//     });
 
     
-    let images = [...selectedImages];
-    if (images.length < 4) {
+//     let images = [...selectedImages];
+//     if (images.length < 4) {
     
-      while (images.length < 4) {
-        images.push({ uri: '', fileName: 'placeholder.jpg', mimeType: 'image/jpeg' });
-      }
-    }
+//       while (images.length < 4) {
+//         images.push({ uri: '', fileName: 'placeholder.jpg', mimeType: 'image/jpeg' });
+//       }
+//     }
 
 
     
 
  
-    formData.append('PostID', postID);
-    formData.append('posterID', UID);
-    formData.append('hotelname', hotelname);
-    formData.append('Address', Address);
-    formData.append('Price', Price);
-    formData.append('city', city);
-    formData.append('country', country);
-    formData.append('describe', describe);
-    formData.append('Addon', Addon);
-    formData.append('freewifi', freewifi);
-    formData.append('freefood', freefood);
-    images.forEach(image => {
-      formData.append('file', {
-        uri: image.uri,
-        name: image.fileName || 'upload.jpg',
-        type: image.mimeType || 'image/jpeg',
+//     formData.append('PostID', postID);
+//     formData.append('posterID', UID);
+//     formData.append('hotelname', hotelname);
+//     formData.append('Address', Address);
+//     formData.append('Price', Price);
+//     formData.append('city', city);
+//     formData.append('country', country);
+//     formData.append('describe', describe);
+//     formData.append('Addon', Addon);
+//     formData.append('freewifi', freewifi);
+//     formData.append('freefood', freefood);
+//     images.forEach(image => {
+//       formData.append('file', {
+//         uri: image.uri,
+//         name: image.fileName || 'upload.jpg',
+//         type: image.mimeType || 'image/jpeg',
         
-      });
-    });
+//       });
+//     });
 
-    console.log('Selected images:', selectedImages);
-
-   
-    const res = await axios.post(`${baseUrl}/api/createpost`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    if (res.status === 201) {
-      console.log('Post created successfully');
-      Alert.alert("Post created successfully");
-      setPostDetails({
-        hotelname: '',
-        Address: '',
-        Price: '',
-        city: '',
-        country: '',
-        describe: '',
-        Addon: '',
-        freewifi: 0,
-        freefood: 0,
-      });
-      setSelectedImages([]);
-      setModalVisible2(false); 
-    } else {
-      console.log('Error creating post', res.status);
-    }
-  } catch (error) {
-    console.error('Error uploading:', error.message);
+//     console.log('Selected images:', selectedImages);
 
    
-    if (error.response) {
-      console.log('Server responded with:', error.response.data.message || error.response.statusText);
-    } else if (error.request) {
-      console.log('No response received:', error.request);
-    } else {
-      console.log('Error in setup:', error.message);
-    }
-  }
-};
+//     const res = await axios.post(`${baseUrl}/api/createpost`, formData, {
+//       headers: {
+//         'Content-Type': 'multipart/form-data',
+//       },
+//     });
+
+//     if (res.status === 201) {
+//       console.log('Post created successfully');
+//       Alert.alert("Post created successfully");
+//       setPostDetails({
+//         hotelname: '',
+//         Address: '',
+//         Price: '',
+//         city: '',
+//         country: '',
+//         describe: '',
+//         Addon: '',
+//         freewifi: 0,
+//         freefood: 0,
+//       });
+//       setSelectedImages([]);
+//       setModalVisible2(false); 
+//     } else {
+//       console.log('Error creating post', res.status);
+//     }
+//   } catch (error) {
+//     console.error('Error uploading:', error.message);
+
+   
+//     if (error.response) {
+//       console.log('Server responded with:', error.response.data.message || error.response.statusText);
+//     } else if (error.request) {
+//       console.log('No response received:', error.request);
+//     } else {
+//       console.log('Error in setup:', error.message);
+//     }
+//   }
+// };
 
 
   const getUser = async (uname) => {
@@ -238,7 +243,7 @@ const createNewPost = async () => {
     
   
    
-  }, [uname,imgProf]);
+  }, [uname]);
 
   const pickImageAsync = async () => {
     try {
@@ -805,4 +810,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default hotel_detail;

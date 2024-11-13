@@ -1,13 +1,9 @@
-// StartPage.js
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform , Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from 'expo-router';
-import axios from 'axios';
-
 
 const StartPage = () => {
-const navigation = useNavigation();
-
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -17,21 +13,18 @@ const navigation = useNavigation();
         source={require('../assets/images/icons.png')} 
         style={styles.image}
       />
-      {/* <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('list')}>
-        <Text style={styles.buttonText}>Go to List</Text>
+
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('signup')}>
+        <Text style={styles.buttonText}>LOOKING FOR ROOM</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ip')}>
-        <Text style={styles.buttonText}>Go to Insert</Text>
-      </TouchableOpacity> */}
-      
-       <TouchableOpacity style = {styles.button} onPress={() => navigation.navigate('signup')}>
-        <Text style = {styles.buttonText}>GET STARTED
-        </Text>
-       </TouchableOpacity>
-       <TouchableOpacity onPress={() => {navigation.navigate('login')}}>
-                   <Text style={styles.loginText}>or you already have an account</Text>
-                </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('signup')}>
+        <Text style={styles.buttonText}>SIGN UP TO BECOME PARTNER</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('login')}>
+        <Text style={styles.buttonText}>LOGIN</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -41,41 +34,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#5ce1e6',
     justifyContent: 'center',
     alignItems: 'center',
-    height:'100%',
+    height: '100%',
+    paddingHorizontal: 20, // Add some horizontal padding to prevent buttons from touching the edges
   },
   header: {
     fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: 'white'
+    color: 'white',
   },
   button: {
-    marginTop: 50,
+    marginTop: 20, // Reduced margin to fit all buttons
     backgroundColor: '#ffffff',
     padding: 15,
     borderRadius: 5,
     marginVertical: 10,
-    width: '80%',
+    width: '100%', // Make the buttons span the full width with some padding
     alignItems: 'center',
   },
   buttonText: {
-  
     color: 'black',
-    fontSize: 20,
+    fontSize: 18, // Adjusted font size for better fit
   },
   image: {
-    width: 400, // Set your desired width
-    height: 400, // Set your desired height
-    marginTop: 50,
-    borderRadius:20,
-
+    width: 300, // Reduced image size to make space for the buttons
+    height: 300,
+    marginTop: 30,
+    borderRadius: 20,
   },
-  loginText: {
-    color: '#6200ee', // Make the text appear as a link
-    fontSize: 16,
-    marginTop: 10,
-    textDecorationLine: 'underline',
-},
 });
 
 export default StartPage;

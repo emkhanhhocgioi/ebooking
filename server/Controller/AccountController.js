@@ -57,38 +57,6 @@ const signup = async (req, res) => {
     }
 };
 
-const signupHotel = async (req, res) => {
-    const { uname, email, password } = req.body;
-
-    if (!uname || !email || !password) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    try {
-        const existingUser = await taikhoan.findOne({ Email: email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-        const newHotel = new taikhoan({
-            Username: uname,
-            Email: email,
-            Password: password,
-            urole: 2,
-            Desc: ' ',
-            followercount: 0,
-            followingcount: 0,
-            imgProfile: ' ',
-        });
-        await newHotel.save();
-        return res.status(201).json({
-            success: true,
-            message: 'Account created successfully',
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
-    }
-};
 
 const login = async (req, res) => {
      const { uname, password } = req.body;
@@ -147,7 +115,6 @@ const getUserData = async (req, res) => {
 const getUserProfileImage = async (req, res) => {
   const { imgname } = req.query;
   console.log(imgname);
-  console.log(gfs);
 
   if (!imgname) {
     return res.status(400).json({ message: 'No image found' });
@@ -170,35 +137,9 @@ const getUserProfileImage = async (req, res) => {
     const file = files[0];
 
     if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-      // Open a download stream for the file
-      const downloadStream = gfs.openDownloadStreamByName(imgname);
-
-      // Create a buffer to hold the image data
-      const chunks = [];
-      downloadStream.on('data', chunk => {
-        chunks.push(chunk);
-      });
-
-      downloadStream.on('end', () => {
-        // Concatenate all chunks to form the complete file
-        const fileBuffer = Buffer.concat(chunks);
-
-        // Convert the fileBuffer to a Base64 string
-        const base64String = fileBuffer.toString('base64');
-        
-        // Determine the mime type (optional)
-        const mimeType = file.contentType;
-
-        // Send the Base64 string as part of the response
-        return res.status(200).json({
-          success: true,
-          image: `data:${mimeType};base64,${base64String}`,
-        });
-      });
-
-      downloadStream.on('error', (error) => {
-        return res.status(500).json({ error: 'Error reading file stream', details: error.message });
-      });
+      res.set('Content-Type', file.contentType);
+      const downloadStream = gfs.openDownloadStreamByName(imgname);  // Corrected here
+      downloadStream.pipe(res);
     } else {
       return res.status(400).json({ error: 'File is not an image' });
     }
@@ -206,6 +147,7 @@ const getUserProfileImage = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
+
 
 const editProfile = async (req, res) => {
     const { username, email, desc } = req.body;
@@ -273,4 +215,4 @@ const uploadProfile = async (req, res) => {
 };
 
 
-module.exports = { signup, signupHotel, login, getUserData, editProfile, uploadProfile, getUserProfileImage };
+module.exports = { signup, login, getUserData, editProfile, uploadProfile, getUserProfileImage };

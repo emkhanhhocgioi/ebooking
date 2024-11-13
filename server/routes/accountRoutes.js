@@ -54,6 +54,6 @@ router.get('/image',getUserProfileImage)
 router.get('/getUserData', getUserData);
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/signupH', signupHotel);
+
 
 module.exports = router;

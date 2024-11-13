@@ -1,55 +1,70 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity, Modal } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Image, StyleSheet, Platform, FlatList, TouchableOpacity, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import HotelDetailScreen from '../hotelDetail';
+import axios from 'axios';
 
-const meetups = [
-  {
-    id: '1',
-    location: 'USA, Los Angeles - 2 Weeks',
-    title: 'City of Los Angeles',
-    image: require('C:/Users/hidra/GK2/assets/images/main.png'),
-  },
-  {
-    id: '2',
-    location: 'USA, New York - 3 Weeks',
-    title: 'City of New York',
-    image: require('C:/Users/hidra/GK2/assets/images/main.png'),
-  },
-  {
-    id: '3',
-    location: 'USA, New York - 3 Weeks',
-    title: 'City of New York',
-    image: require('C:/Users/hidra/GK2/assets/images/main.png'),
-  },
-  {
-    id: '4',
-    location: 'USA, New York - 3 Weeks',
-    title: 'City of New York',
-    image: require('C:/Users/hidra/GK2/assets/images/main.png'),
-  },
-  {
-    id: '5',
-    location: 'USA, New York - 3 Weeks',
-    title: 'City of New York',
-    image: require('C:/Users/hidra/GK2/assets/images/main.png'),
-  },
-];
+let baseUrl = "http://localhost:5000";
+if (Platform.OS === "android") {
+  baseUrl = "http://10.0.2.2:5000";
+} else if (Platform.OS === "ios") {
+  baseUrl = "http://172.20.10.9:5000";
+}
 
 const MainPage = () => {
+  const [meetups, setMeetsup] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [hotelData ,setHotelData] = useState(null)
   const navigation = useNavigation();
+    
+  const fetch10Post = async () => {
+    try {
+      setLoading(true); 
+      const res = await axios.get(`${baseUrl}/api/getpost`);
+      setMeetsup(res.data); 
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const renderMeetupItem = ({ item }) => (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      style={styles.meetupCard}
-      onPress={() => setModalVisible(true)}>
-      <Image source={item.image} style={styles.meetupImage} />
-      <Text style={styles.locationText}>{item.location}</Text>
-      <Text style={styles.titleText}>{item.title}</Text>
-    </TouchableOpacity>
+  useEffect(() => {
+    fetch10Post();
+  }, []);
+
+  useEffect(() => {
+    if (meetups) {
+      console.log('Updated meetups:', meetups.posts[0].PostID);
+    }
+  }, [meetups]);
+  const handleButtonPress = (data) => {
+    // Set data to be shown in the modal
+    setModalVisible(true); // Show the modal
+    console.log(data)
+    setHotelData(data)
+  };
+  const renderMeetups = () => (
+    <FlatList
+      data={meetups.posts}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={styles.meetupCard}
+          onPress={() => handleButtonPress(item)}
+        >
+         
+          <Image source={{ uri: `${baseUrl}${item.imgArr[0]}` }} style={styles.meetupImage} />
+
+          <Text style={styles.locationText}>{item.Address}</Text>
+          <Text style={styles.titleText}>{item.HotelName}</Text> 
+        </TouchableOpacity>
+      )}
+      keyExtractor={(item) => item.PostID}
+      contentContainerStyle={styles.meetupList}
+    />
   );
 
   return (
@@ -57,9 +72,9 @@ const MainPage = () => {
       <View style={styles.searchContainer}>
         <TextInput style={styles.searchInput} placeholder="Search" />
       </View>
-
-      <Text style={styles.title}>Upcoming meetups</Text>
-
+  
+      
+  
       <View style={styles.iconsRow}>
         <TouchableOpacity style={styles.iconButton}>
           <Icon name="camera-outline" size={24} color="#000" />
@@ -74,15 +89,12 @@ const MainPage = () => {
           <Icon name="happy-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={meetups}
-        renderItem={renderMeetupItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.meetupList}
-      />
-
+  
+      {/* Render meetups only if they are available */}
+      {meetups && meetups.posts ? renderMeetups() : <Text>Loading...</Text>}
+  
       <Modal
+        data={hotelData}
         visible={isModalVisible}
         animationType="slide"
         transparent={true}
@@ -93,7 +105,7 @@ const MainPage = () => {
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
               <Icon name="close" size={30} color="#000" />
             </TouchableOpacity>
-            <HotelDetailScreen />
+            <HotelDetailScreen hotelData={hotelData}/>
           </View>
         </View>
       </Modal>
@@ -139,7 +151,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   meetupCard: {
-    backgroundColor: '#E6F0FF',
+    backgroundColor: '#F5DEB3',
     borderRadius: 10,
     padding: 16,
     marginBottom: 16,
@@ -165,14 +177,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',  // To give a dimmed background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
   },
   modalContent: {
     backgroundColor: '#fff',
     width: '100%',
-    height: '100%',  // Make modal content take full screen
+    height: '100%', 
     padding: 20,
-    position: 'relative',  // So we can position the close button absolutely
+    position: 'relative',  
   },
   closeButton: {
     position: 'absolute',
