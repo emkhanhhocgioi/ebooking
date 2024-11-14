@@ -23,7 +23,7 @@ conn.once('open', () => {
 
 
 const signup = async (req, res) => {
-    const { uname, email, password } = req.body;
+    const { uname, email, password,PhoneNumber } = req.body;
 
     if (!uname) {
         return res.status(400).json({ message: 'Username is required' });
@@ -45,6 +45,7 @@ const signup = async (req, res) => {
             Password: password,
             urole: 1,
             Desc: ' ',
+            PhoneNumber:PhoneNumber,
             followercount: 0,
             followingcount: 0,
             imgProfile: ' ',
@@ -55,6 +56,44 @@ const signup = async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: 'Server error' });
     }
+};
+const signupPartner = async (req, res) => {
+  const { uname, email, password,PhoneNumber } = req.body;
+
+  if (!uname) {
+      return res.status(400).json({ message: 'Username is required' });
+  }
+  if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+  }
+  if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+  }
+  if (!PhoneNumber) {
+    return res.status(400).json({ message: 'phone number is required' });
+}
+  try {
+      const existingUser = await taikhoan.findOne({ Email: email });
+      if (existingUser) {
+          return res.status(400).json({ message: 'User already exists' });
+      } 
+      const newtk = new taikhoan({
+          Username: uname,
+          Email: email,
+          Password: password,
+          urole: 2,
+          Desc: ' ',
+          PhoneNumber:PhoneNumber,
+          followercount: 0,
+          followingcount: 0,
+          imgProfile: ' ',
+      });
+      await newtk.save();
+      return res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
+  }
 };
 
 
@@ -73,7 +112,8 @@ const login = async (req, res) => {
             if (document.Password != password) {
                 return res.status(400).json({ message: 'wrong user password' });
             }
-            return res.send('Login success');
+          
+            return res.send(document._id);
         }
      } catch (error) {
         console.log(error);
@@ -100,11 +140,12 @@ const getUserData = async (req, res) => {
       Email: document.Email,
       urole: document.urole,
       Desc: document.Desc,
+      PhoneNumber:document.PhoneNumber,
       followercount: document.followercount,
       followingcount: document.followingcount,
       imgProfile: document.imgProfile,
     };
-    console.log(formattedDocument)
+   
     res.json(formattedDocument)
     
   } catch (error) {
@@ -196,14 +237,6 @@ const uploadProfile = async (req, res) => {
       { new: true }
     );
 
-    
-    const fileToDelete = await conn.db.collection('uploads.files').findOne({ filename: document.imgProfile });
-    if (fileToDelete) {
-     
-      await conn.db.collection('uploads.files').deleteOne({ _id: fileToDelete._id });
-      await conn.db.collection('upload.chunks').deleteMany({ files_id: fileToDelete._id });
-      console.log(`Deleted old file: ${document.imgProfile}`);
-    }
 
     
 
@@ -215,4 +248,4 @@ const uploadProfile = async (req, res) => {
 };
 
 
-module.exports = { signup, login, getUserData, editProfile, uploadProfile, getUserProfileImage };
+module.exports = { signup, login, getUserData, editProfile, uploadProfile, getUserProfileImage,signupPartner };

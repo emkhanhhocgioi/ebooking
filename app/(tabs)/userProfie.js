@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity,Alert,ScrollView,Switch, StyleSheet, Platform, Modal, TextInput, Button } from 'react-native';
+import { View, Text, Image, TouchableOpacity,Alert,FlatList,ScrollView,Switch, StyleSheet, Platform, Modal, TextInput, Button } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRoute } from '@react-navigation/native';
+import HotelDetailScreen from '../hotelDetail';
 import axios from 'axios';
 
 
@@ -48,9 +49,10 @@ const ProfileScreen = () => {
   }
   //for post
   const [PostImg,setPostImg] = useState([]);
+  const [loading2, setLoading2] = useState(true);
   const [postData,setPostData] = useState([]);
-
-
+  const [hotelData,setHotelData] = useState(null)
+  const [isModalVisible3, setModalVisible3] = useState(false); 
   const [postDetails, setPostDetails] = useState({
   
   hotelname: '',
@@ -60,8 +62,7 @@ const ProfileScreen = () => {
   country: '',
   describe: '',
   Addon: '',
-  freewifi: false,
-  freefood: false
+ 
 });
 
 
@@ -71,7 +72,7 @@ const createNewPost = async () => {
   const UID = userID;
   console.log(UID)
  // Assuming 'uname' is defined elsewhere
-  const { hotelname, Address, Price, city, country, describe, Addon, freewifi, freefood } = postDetails;
+  const { hotelname, Address, Price, city, country, describe, Addon,} = postDetails;
 
   // Utility function to validate parameters
   function validateParams(params) {
@@ -96,8 +97,7 @@ const createNewPost = async () => {
       country,
       describe,
       Addon,
-      freewifi,
-      freefood,
+     
       selectedImages
     });
 
@@ -123,8 +123,7 @@ const createNewPost = async () => {
     formData.append('country', country);
     formData.append('describe', describe);
     formData.append('Addon', Addon);
-    formData.append('freewifi', freewifi);
-    formData.append('freefood', freefood);
+  
     images.forEach(image => {
       formData.append('file', {
         uri: image.uri,
@@ -154,8 +153,7 @@ const createNewPost = async () => {
         country: '',
         describe: '',
         Addon: '',
-        freewifi: 0,
-        freefood: 0,
+        
       });
       setSelectedImages([]);
       setModalVisible2(false); 
@@ -234,6 +232,7 @@ const createNewPost = async () => {
   useEffect(() => {
     if (uname) {
       getUser(uname);
+      getUserPost(userID);
     }
     
   
@@ -335,32 +334,52 @@ const handleSaveChanges = async () => {
   }
 };
 
-const renderPost = ()=>{
-  if(!postData){
-    return postData.map((item, i) => (
-      <View style={styles.postContainer} key={i}>
+
+const renderUserPost = () => (
+  <View style={styles.meetupList}>
+    {postData.post.map((item) => (
+      <View
+        key={item.PostID}
+        activeOpacity={0.7}
+        style={styles.postContainer}
+    
+       
+      >
         <Image
-          source={{ uri: 'C:/Users/hidra/GK2/assets/images/main.png' }}
+          source={{ uri: item.images && item.images.length > 0 ? `${baseUrl}${item.images[0]}` : 'default_image_url' }}
           style={styles.postImage}
         />
         <View style={styles.postDetails}>
           <Text style={styles.postTitleText}>{item.HotelName}</Text>
           <Text style={styles.postLocation}>{item.Address}</Text>
-          <Text style={styles.postPrice}>{item.Address}</Text>
-          <Text style={styles.postRating}>⭐ {item.rating}</Text>
+          <Text style={styles.postPrice}>{item.price}$/night</Text>
+          <Text style={styles.postRating}>⭐{item.rating}</Text>
         </View>
+        <View style={styles.actionsContainer}>
+        <TouchableOpacity style={styles.actionButton}>
+          <Icon name="pencil" size={20} color="blue" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Icon name="trash" size={20} color="red" />
+        </TouchableOpacity>
       </View>
-    ));
-  }
-  
-}
+      </View>
+    ))}
+  </View>
+);
+
+
+
+
 
 const getUserPost = async (userID) =>{
       if(!userID){
         console.log('not found userID')
       }
+      console.log(userID)
     
       try {
+        setLoading2(true)
         const res = await axios.get(`${baseUrl}/api/getuserpost`, {
         headers: {
           'Content-Type': 'application/json',
@@ -369,11 +388,15 @@ const getUserPost = async (userID) =>{
           userID: userID,
         },
       })
-      setPostImg(res.data.images)
-      setPostData(res.data.post)
-      console.log(postData)
+      // console.log(res.data)
+
+      setPostData(res.data)
+      
+      
       } catch (error) {
         
+      }finally{
+        setLoading(false);
       }
 
 }
@@ -430,19 +453,13 @@ const getUserPost = async (userID) =>{
             <Icon name="pencil-outline" size={12} color="#4A55A2" />
             <Text style={styles.changeButtonText} onPress={() => setModalVisible2(true)}>create Post</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.changeButton}>
-            <Icon name="pencil-outline" size={12} color="#4A55A2" />
-            <Text style={styles.changeButtonText} onPress={getUserPost}>create Post</Text>
-          </TouchableOpacity>
+         
         </View>
-        {/* <View>
-          {renderPost()}
-        </View> */}
-      
-      
       </View>
+        {postData && postData.post ? renderUserPost() : <Text>Loading...</Text>}
 
       {/* Modal for Editing Profile */}
+      
 <Modal
   visible={isModalVisible}
   animationType="slide"
@@ -456,7 +473,7 @@ const getUserPost = async (userID) =>{
       {/* Email input */}
       <TextInput
         style={styles.modalInput}
-        placeholder="Email"
+        placeholder={email}
         value={newEmail}
         onChangeText={setNewEmail}
       />
@@ -464,7 +481,7 @@ const getUserPost = async (userID) =>{
       {/* Description input */}
       <TextInput
         style={styles.modalInput}
-        placeholder="Description"
+        placeholder={desc}
         value={newDesc}
         onChangeText={setNewDesc}
         multiline
@@ -567,21 +584,6 @@ const getUserPost = async (userID) =>{
           />
         ))}
       </ScrollView>
-        <View style={styles.checkboxContainer}>
-          <Text style={styles.checkboxLabel}>Free Wi-Fi</Text>
-          <Switch
-    value={postDetails.freewifi}
-    onValueChange={(value) => setPostDetails({ ...postDetails, freewifi: value ? 'true' : 'false' })}
-  />
-        </View>
-
-        <View style={styles.checkboxContainer}>
-          <Text style={styles.checkboxLabel}>Free Food</Text>
-          <Switch
-    value={postDetails.freefood}
-    onValueChange={(value) => setPostDetails({ ...postDetails, freefood: value ?  'true': 'false'})}
-  />
-        </View>
 
         <View style={styles.modalButtons}>
           <Button title="Save Changes" onPress={createNewPost} />
@@ -802,6 +804,14 @@ const styles = StyleSheet.create({
   postRating: {
     fontSize: 16,
     color: '#FFD700',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  actionButton: {
+    padding: 10,
   },
 });
 

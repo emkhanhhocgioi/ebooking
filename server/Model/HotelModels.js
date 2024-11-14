@@ -10,7 +10,7 @@ const hotel = mongoose.Schema({
     price_per_night: { type: String, required: true },
     host: { type: String, required: true },
     phonenumber: { type: String, required: true },
-    ReviewID: { type: String, required: true }
+    
 });
 
 const HotelModel = mongoose.model('Hotel', hotel);

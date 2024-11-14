@@ -2,22 +2,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const accountRoutes = require('./routes/accountRoutes');
-
+const routerOrder = require('./routes/OrderRoutes');
 const PostRoutes = require('./routes/PostRoutes')
 const cors = require('cors');
 
 const app = express();
-
-
-
-
-
 app.use(cors())
 app.use(express.json());
 
 app.use('/api/',PostRoutes)
 app.use('/api/', accountRoutes);
-
+app.use('/api/', routerOrder)
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/hardwaredb', {

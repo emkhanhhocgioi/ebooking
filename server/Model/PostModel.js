@@ -12,14 +12,7 @@ const post = new mongoose.Schema({
     addon:{type:String,require:true},
     Posterimage:{type:String,require:true},
     rating:{type:Number,require:true},
-    freewifi:{type:String,require:true},
-    freeFood:{type:String,require:true},
-
-
-
-
     
-
 }
 )
 const Post = mongoose.model('Post', post);

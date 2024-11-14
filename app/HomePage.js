@@ -18,7 +18,7 @@ const StartPage = () => {
         <Text style={styles.buttonText}>LOOKING FOR ROOM</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('signup')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('signupP')}>
         <Text style={styles.buttonText}>SIGN UP TO BECOME PARTNER</Text>
       </TouchableOpacity>
 

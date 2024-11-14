@@ -8,6 +8,7 @@ const accountSchema = new mongoose.Schema({
   Password: { type: String, required: true },
   urole: { type: Number, required: true },
   Desc:{type: String, required:true},
+  PhoneNumber:{type:Number, required:true},
   followercount:{type:Number,requrie:true},
   followingcount:{type:Number,requrie:true},
   imgProfile:{type: String,requrie:true}

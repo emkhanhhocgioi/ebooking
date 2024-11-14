@@ -38,8 +38,7 @@ const createPost = async(req,res) =>{
             addon:Addon,
             Posterimage:posterName,
             rating:0,
-            freewifi:freewifi,
-            freeFood:freefood
+           
         }
         );
         await document.save();
@@ -73,9 +72,9 @@ const fecthUserPost = async (req, res) => {
     }
 
     try {
-        const document = await Post.findOne({ PosterID: userID });
-        
-        if (document) {
+        const documents = await Post.find({ PosterID: userID });
+     
+        if (documents.length > 0) {
             const files = await gfs.find().toArray();
 
             
@@ -88,21 +87,21 @@ const fecthUserPost = async (req, res) => {
                    
                    
                 });
-            const formattedDocument = {
-                PostID: document.PostID,
-                HotelName: document.HotelName,
-                Address: document.Address,
-                price: document.price,
-                city: document.city,
-                country: document.country,
-                describe: document.describe,
-                addon: document.addon,
-                rating: document.rating,
-                freewifi: document.freewifi,
-                freefood: document.freeFood,
-            };
-
-            res.json({ post: formattedDocument, images: imgarr });
+        
+            const formattedDocuments = documents.map(doc => ({
+                PostID: doc.PostID,
+                HotelName: doc.HotelName,
+                Address: doc.Address,
+                price: doc.price,
+                city: doc.city,
+                country: doc.country,
+                describe: doc.describe,
+                addon: doc.addon,
+                rating: doc.rating,
+                images: imgarr
+            }));
+            
+            res.json({ post: formattedDocuments});
         } else {
             res.status(404).json({ error: 'Post not found' });
         }
@@ -124,27 +123,32 @@ const fecthAllPost = async (req, res) => {
        
         const files = await gfs.find().toArray();
 
-        const imgarr = files.filter(file => file.contentType === 'image/jpeg' || file.contentType === 'image/png')
-            .map(file => `/api/getpostimg?imgname=${file.filename}`);  
+        
 
       
-        const formattedPosts = posts.map(post => ({
-            PostID: post.PostID,
-            HotelName: post.HotelName,
-            Address: post.Address,
-            price: post.price,
-            city: post.city,
-            country: post.country,
-            describe: post.describe,
-            addon: post.addon,
-            rating: post.rating,
-            freewifi: post.freewifi,
-            freefood: post.freeFood,
-            imgArr: imgarr,
-        }));
+            const formattedPosts = await Promise.all(posts.map(async (post) => {
+                // Filter files related to the current post's PostID
+                const imgarr = files.filter(file => 
+                    (file.contentType === 'image/jpeg' || file.contentType === 'image/png') &&
+                    file.metadata?.postID === post.PostID
+                ).map(file => `/api/getpostimg?imgname=${file.filename}`);
+    
+                return {
+                    PostID: post.PostID,
+                    PosterID:post.PosterID,
+                    HotelName: post.HotelName,
+                    Address: post.Address,
+                    price: post.price,
+                    city: post.city,
+                    country: post.country,
+                    describe: post.describe,
+                    addon: post.addon,
+                    rating: post.rating,
+                    imgArr: imgarr,
+                };
+            }));
 
-        console.log(formattedPosts)
-        console.log(imgarr)
+        
         res.json({
             posts:formattedPosts
         });

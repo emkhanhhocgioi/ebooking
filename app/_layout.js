@@ -16,7 +16,7 @@ import Homscreen from './(tabs)/home';
 
 import HotelDetailScreen from './hotelDetail';
 import UpdateProfileScreen from './updateProfile';
-import ProfileScreen from './(tabs)/userProfie';
+import DangKiPartner from './DangkiPartner';
 const Stack = createNativeStackNavigator();
 
 const StackThing= () =>{
@@ -51,7 +51,7 @@ const App = () => {
           <Stack.Screen name="login" component={UserLogin} options={{ headerShown: false}} />
           <Stack.Screen name="signup" component={DangKi} options={{ headerShown: false}} />
           <Stack.Screen name="home" component={Homscreen} options={{ headerShown: false}} />
-         
+          <Stack.Screen name="signupP" component={DangKiPartner} options={{ headerShown: false}}/>
           <Stack.Screen name="hoteldetail" component={HotelDetailScreen} options={{ headerShown: false}}/>
           <Stack.Screen name="update_profile" component={UpdateProfileScreen} options={{ headerShown: false}}/>
         </Stack.Navigator>

@@ -7,18 +7,19 @@ import { Colors } from '@/constants/Colors';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AntDesign } from '@expo/vector-icons'; // Importing AntDesign icons
 
-import Inputs from './inputs';
-import LIST from './LIST';
+import CalendarSelect from './OrderList';
 import MainPage from './mainpage';
 import ProfileScreen from './userProfie';
 import ScheduleScreen from '../scheduleScreen';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Orderlist from './OrderList';
 
 export default function Homscreen() {
   const route = useRoute();
-  const userName = route.params.username;
-
+  const arr = route.params.username;
+  
+ 
   const colorScheme = useColorScheme();
   const Tab = createBottomTabNavigator();
 
@@ -28,7 +29,7 @@ export default function Homscreen() {
         <Tab.Screen
           name="Explore"
           component={MainPage}
-          initialParams={{ username: userName }}
+          initialParams={{ username: arr[0] }}
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
@@ -39,7 +40,7 @@ export default function Homscreen() {
         <Tab.Screen
           name="profile"
           component={ProfileScreen}
-          initialParams={{ username: userName }}
+          initialParams={{ username: arr[0] }}
           options={{
             
             headerShown: false,
@@ -51,6 +52,17 @@ export default function Homscreen() {
         <Tab.Screen
           name="schedule"
           component={ScheduleScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <AntDesign name="calendar" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="OrderList"
+          component={Orderlist}
+          initialParams={{uid: arr[1] }}
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (

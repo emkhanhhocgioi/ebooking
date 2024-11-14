@@ -1,17 +1,87 @@
-import React from 'react';
-import { View, Text, Image, ScrollView,Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View,Button, Text,TextInput,Alert, Image, ScrollView, Platform, TouchableOpacity, StyleSheet, Modal } from 'react-native';  // Updated import
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+
 if (Platform.OS === "android") {
   baseUrl = "http://10.0.2.2:5000";
 } else if (Platform.OS === "ios") {
   baseUrl = "http://172.20.10.9:5000";
 }
-const HotelDetailScreen = ({hotelData}) => {
-  if(!hotelData){
-    console.log('nothing')
-  }else{
-    console.log('something')
-  }
-  console.log(hotelData)
+
+const HotelDetailScreen = ({ hotelData }) => {
+  const [isModalVisible, setModalVisible] = useState(false);  // Default to false to show modal only on user interaction
+  const [date, setDate] = useState(new Date());
+  const [date2, setDate2] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [show2, setShow2] = useState(false);
+  const [note,setNote] = useState('none');
+ 
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(false);
+    setDate(currentDate);
+  };
+  const onChange2 = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow2(false);
+    setDate2(currentDate);
+  };
+
+  const createOrders = async () => {
+    console.log(date, date2);
+    console.log(note);
+
+    
+    const payload = {
+        HotelID: hotelData.PostID,
+        UserID: hotelData.PosterID,
+        checkin: date.toISOString(),
+        checkout: date2.toISOString(),  
+        note: note
+    };
+
+    console.log(payload);  
+
+    try {
+      
+        const res = await axios.post(`${baseUrl}/api/createorder`, payload, {
+            headers: {
+                'Content-Type': 'application/json',  // Set the content type to JSON
+            },
+        });
+
+        if (res.status === 201) {
+            Alert.alert('Booking created successfully');
+        }
+    } catch (error) {
+        console.error('Error uploading:', error);
+        if (error.response) {
+            console.log('Server responded with:', error.response.data.message);
+        } else if (error.request) {
+            console.log('No response received:', error.request);
+        } else {
+            console.log('Error in setup:', error.message);
+        }
+    }
+
+    setModalVisible(false);
+};
+
+
+
+
+  // if (!hotelData) {
+  //   console.log('nothing');
+  // } else {
+  //   console.log('something');
+  // }
+  // console.log(hotelData);
+
+ 
+ 
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -27,7 +97,7 @@ const HotelDetailScreen = ({hotelData}) => {
 
       {/* Hotel Image */}
       <Image
-        source={{uri: `${baseUrl}${hotelData.imgArr[0]}`}}
+        source={{ uri: `${baseUrl}${hotelData.imgArr[0]}` }}
         style={styles.hotelImage}
       />
 
@@ -50,29 +120,96 @@ const HotelDetailScreen = ({hotelData}) => {
 
         {/* Hotel Details */}
         <Text style={styles.hotelName}>{hotelData.HotelName}</Text>
-        <Text style={styles.locationText}>{hotelData.Address+','+hotelData.city+","+hotelData.country}</Text>
+        <Text style={styles.locationText}>{hotelData.Address + ',' + hotelData.city + "," + hotelData.country}</Text>
         <Text style={styles.priceText}>{hotelData.price}$ <Text style={styles.perNight}>/night</Text></Text>
 
         {/* Description */}
         <Text style={styles.sectionTitle}>Description</Text>
         <Text style={styles.descriptionText}>
-          Aston {hotelData.describe} 
+          Aston {hotelData.describe}
           <Text style={styles.readMore}>Read More...</Text>
         </Text>
 
         {/* Preview Images */}
         <Text style={styles.sectionTitle}>Preview</Text>
         <View style={styles.previewContainer}>
-          <Image source={{uri: `${baseUrl}${hotelData.imgArr[1]}`}} style={styles.previewImage} />
-          <Image source={{uri: `${baseUrl}${hotelData.imgArr[2]}`}} style={styles.previewImage} />
-          <Image source={{uri: `${baseUrl}${hotelData.imgArr[3]}`}} style={styles.previewImage} />
+          <Image source={{ uri: `${baseUrl}${hotelData.imgArr[1]}` }} style={styles.previewImage} />
+          <Image source={{ uri: `${baseUrl}${hotelData.imgArr[2]}` }} style={styles.previewImage} />
+          <Image source={{ uri: `${baseUrl}${hotelData.imgArr[3]}` }} style={styles.previewImage} />
         </View>
 
         {/* Booking Button */}
-        <TouchableOpacity style={styles.bookingButton}>
+        <TouchableOpacity style={styles.bookingButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.bookingButtonText}>Booking Now</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal */}
+      <Modal
+      visible={isModalVisible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.selectedDateContainer}>
+
+          <View style={styles.dateRow}>
+            <Button title="Select Date" onPress={() => setShow(true)} />
+            <Text style={styles.dateText}>Check In Date: {date.toDateString()}</Text>
+          </View>
+          {show && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={onChange}
+            />
+          )}
+
+          <View style={styles.dateRow}>
+            <Button title="Select Date" onPress={() => setShow2(true)} />
+            <Text style={styles.dateText}>Check Out Date: {date2.toDateString()}</Text>
+          </View>
+          {show2 && (
+            <DateTimePicker
+              value={date2}
+              mode="date"
+              display="default"
+              onChange={onChange2}
+            />
+          )}
+
+          <TextInput
+            placeholder="Add a note"
+            style={styles.noteInput}
+            value={note}
+            onChangeText={setNote}
+          />
+          <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Ionicons name="close-circle-outline" size={24} color="white" />
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.bookButton}
+            onPress={() => createOrders()}
+          >
+            <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+            <Text style={styles.buttonText}>Book</Text>
+          </TouchableOpacity>
+        </View>
+        </View>
+
+        {/* Footer with Cancel and Book buttons */}
+        
+      </View>
+    </Modal>
+
     </ScrollView>
   );
 };
@@ -92,11 +229,11 @@ const styles = StyleSheet.create({
   },
   heartIconContainer: {
     position: 'absolute',
-    top: 10,          // Cách phía trên ảnh 10px
-    right: 10,        // Cách phải 10px
-    backgroundColor: 'white',  // Nền trắng để nổi bật
-    borderRadius: 20, // Bo tròn nền biểu tượng
-    padding: 5,       // Khoảng cách xung quanh biểu tượng
+    top: 10,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 5,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -110,23 +247,20 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
-  infoContainer: {
-    padding: 20,
-  },
   hotelImage: {
-    width: '100%',               // Chiếm toàn bộ chiều ngang
-    height: undefined,           // Để duy trì tỉ lệ của ảnh
-    aspectRatio: 16 / 9,         // Tỉ lệ 16:9 như ảnh gốc
-    borderRadius: 15,            // Bo tròn 15px cả 4 góc
-    marginVertical: 10,          // Khoảng cách trên dưới
-    shadowColor: "#000",         // Màu đổ bóng
+    width: '100%',
+    height: undefined,
+    aspectRatio: 16 / 9,
+    borderRadius: 15,
+    marginVertical: 10,
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,         // Độ mờ của bóng
-    shadowRadius: 3.84,          // Bán kính đổ bóng
-    elevation: 5,                // Hiệu ứng nổi trên Android
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   infoContainer: {
     padding: 20,
@@ -204,6 +338,65 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  modalContainer: {
+    flex: 1,
+    width:'100%',
+    height:'50%',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  selectedDateContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    marginHorizontal: 20,
+  },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  dateText: {
+    marginLeft: 10,
+  },
+  noteInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginTop: 10,
+    paddingLeft: 8,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: 'white',
+  },
+  cancelButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF6347',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  bookButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#32CD32',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 5,
+    fontSize: 16,
+  },
+  
 });
 
 export default HotelDetailScreen;

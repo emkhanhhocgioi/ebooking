@@ -42,7 +42,7 @@ const storage2 = new GridFsStorage({
 })
 
 
-const { signup, signupHotel, login, getUserData, editProfile, uploadProfile ,getUserProfileImage } = require('../Controller/AccountController');
+const { signup, login, getUserData, signupPartner, uploadProfile ,getUserProfileImage } = require('../Controller/AccountController');
 
 
 
@@ -53,6 +53,7 @@ router.get('/image',getUserProfileImage)
 // Other routes
 router.get('/getUserData', getUserData);
 router.post('/signup', signup);
+router.post('/signupPartner', signupPartner);
 router.post('/login', login);
 
 

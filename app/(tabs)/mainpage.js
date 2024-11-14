@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import HotelDetailScreen from '../hotelDetail';
 import axios from 'axios';
-
+import { useRoute } from '@react-navigation/native';
 let baseUrl = "http://localhost:5000";
 if (Platform.OS === "android") {
   baseUrl = "http://10.0.2.2:5000";
@@ -13,12 +13,16 @@ if (Platform.OS === "android") {
 }
 
 const MainPage = () => {
+
+  const route = useRoute();
   const [meetups, setMeetsup] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hotelData ,setHotelData] = useState(null)
   const navigation = useNavigation();
-    
+ 
+  const userName = route.params.username;
+  const userId = route.params.userId;
   const fetch10Post = async () => {
     try {
       setLoading(true); 
@@ -38,6 +42,7 @@ const MainPage = () => {
   useEffect(() => {
     if (meetups) {
       console.log('Updated meetups:', meetups.posts[0].PostID);
+      console.log(userId)
     }
   }, [meetups]);
   const handleButtonPress = (data) => {

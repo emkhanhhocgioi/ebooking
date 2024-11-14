@@ -14,12 +14,13 @@ if (Platform.OS === "ios") {
 }
 
 
-export default function DangKi() {
+export default function DangKiPartner() {
     const navigation = useNavigation();
     const [Username, setUsername] = useState('');
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
-    const [ConfirmPassword, setConfirmPassword] = useState(''); // Added state for Confirm Password
+    const [ConfirmPassword, setConfirmPassword] = useState('');
+    const [phonenumber,setPhonenumber] = useState('')
     const [loading, setLoading] = useState(false); // Added loading state
 
     const handleSubmit = async () => {
@@ -27,43 +28,57 @@ export default function DangKi() {
             alert("Vui lòng nhập đầy đủ tài khoản và mật khẩu");
             return;
         }
-
+    
         if (Password !== ConfirmPassword) {
             alert("Mật khẩu và xác nhận mật khẩu không khớp");
             return;
         }
-
+    
         setLoading(true); // Start loading
-
+    
         const data = {
             uname: Username,
             email: Email,
-            password: Password
+            password: Password,
+            PhoneNumber: phonenumber,
         };
-        console.log(`${baseUrl}/api/signup`)
-        console.log(data)
+    
+        console.log(data);
+    
         try {
-            const res = await axios.post(`${baseUrl}/api/signup`, data, {
+            const res = await axios.post(`${baseUrl}/api/signupPartner`, data, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-            
-            setLoading(false); // Stop loading
-            
-            if (res.status === 201) {
+    
+            // Check for success status codes
+            if (res.status >= 200 && res.status < 300) {
                 alert("Tạo tài khoản thành công");
-                navigation.navigate('home',{username:Username});
+                navigation.navigate('home', { username: Username });
             } else {
                 alert("Đã xảy ra lỗi khi tạo tài khoản");
             }
         } catch (error) {
             console.log(error.response ? error.response.data : error.message);
-            setLoading(false); // Stop loading in case of error
-            alert("Không thể kết nối với máy chủ");
+    
+            // Stop loading in case of error
+            setLoading(false);
+    
+            // Better error handling based on error response
+            if (error.response) {
+                alert(error.response.data.message || "Không thể kết nối với máy chủ");
+            } else if (error.request) {
+                alert("Không nhận được phản hồi từ máy chủ");
+            } else {
+                alert("Đã xảy ra lỗi khi thực hiện yêu cầu");
+            }
+        } finally {
+            // Ensure loading is stopped even if the request fails
+            setLoading(false);
         }
     };
-
+    
     return (
         <View style={styles.container}>
             <LdImg />
@@ -79,6 +94,13 @@ export default function DangKi() {
                 onChangeText={setEmail}
                 value={Email}
                 keyboardType="email-address"
+            />
+             <TextInput
+                style={styles.input}
+                placeholder="Phone number"
+                value={phonenumber}
+                onChangeText={setPhonenumber}
+                secureTextEntry={true}
             />
             <TextInput
                 style={styles.input}

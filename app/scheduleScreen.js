@@ -75,20 +75,7 @@ const ScheduleScreen = () => {
         style={styles.scheduleList}
       />
 
-      <View style={styles.bottomNav}>
-        <TouchableOpacity>
-          <Ionicons name="home-outline" size={28} color="gray" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="calendar-outline" size={28} color="blue" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person-outline" size={28} color="gray" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="settings-outline" size={28} color="gray" />
-        </TouchableOpacity>
-      </View>
+     
     </View>
   );
 };
