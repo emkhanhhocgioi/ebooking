@@ -29,7 +29,7 @@ export default function Homscreen() {
         <Tab.Screen
           name="Explore"
           component={MainPage}
-          initialParams={{ username: arr[0] }}
+          initialParams={{ username: arr[1] }}
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
@@ -52,6 +52,7 @@ export default function Homscreen() {
         <Tab.Screen
           name="schedule"
           component={ScheduleScreen}
+          initialParams={{ uid: arr[1] }}
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (

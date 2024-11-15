@@ -1,44 +1,105 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity,Image, ScrollView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const ScheduleScreen = () => {
-  const [selectedDate, setSelectedDate] = useState('2024-09-19');
+  const route = useRoute();
+  const navigation = useNavigation();
+  const uid = route.params.uid;
 
-  const scheduleData = [
-    {
-      id: '1',
-      hotelName: 'The Aston Vill Hotel',
-      date: '19 March 2024',
-      price: '$200.7 /night',
-      image: 'https://link-to-hotel1-image.com',
-    },
-    {
-      id: '2',
-      hotelName: 'Golden Palace Hotel',
-      date: '25 March 2024',
-      price: '$175.9 /night',
-      image: 'https://link-to-hotel2-image.com',
-    },
-  ];
+  const [selectedCheckin, setSelectedCheckin] = useState([]);
+  const [selectedCheckout, setSelectedCheckout] = useState([]);
+  const [scheduleData, setScheduleData] = useState([]);
+  const [userID, setUserID] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (uid) {
+      setUserID(uid);
+    }
+  }, [uid]);
+
+  useEffect(() => {
+    if (userID) {
+      getSchedule();
+    }
+  }, [userID]);
+
+  useEffect(() => {
+    if (scheduleData && Array.isArray(scheduleData)) {
+      const dates = scheduleData.map(element => {
+        const dateObj = new Date(element.checkinDate);
+        return dateObj.toISOString().split('T')[0];
+      });
+      const dateout = scheduleData.map(element => {
+        const dateObj = new Date(element.checkoutDate);
+        return dateObj.toISOString().split('T')[0];
+      });
+      setSelectedCheckin(dates);
+      setSelectedCheckout(dateout)
+      console.log(scheduleData[0])
+    }
+  }, [scheduleData]);
+
+  const getSchedule = async () => {
+    if (!userID) {
+      console.log('UserID is missing:', userID);
+      return;
+    }
+
+    try {
+      const res = await axios.get(`${baseUrl}/api/getSchedule`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        params: {
+          userID: userID,
+        },
+      });
+
+      if (res.data && res.data.length > 0) {
+        
+        setScheduleData(res.data);
+      } else {
+        setScheduleData([]);
+        console.log('No schedule data found');
+      }
+    } catch (error) {
+      console.log('Error fetching schedule:', error);
+    }
+  };
 
   const renderScheduleItem = ({ item }) => (
     <View style={styles.scheduleItem}>
-      <Image source={{ uri: item.image }} style={styles.hotelImage} />
+    
       <View style={styles.hotelInfo}>
-        <Text style={styles.hotelName}>{item.hotelName}</Text>
-        <Text style={styles.hotelDate}>{item.date}</Text>
-        <Text style={styles.hotelPrice}>{item.price}</Text>
+        <Text style={styles.hotelName}>{item.HotelDetails.hotelName}</Text>
+        <Text style={styles.hotelDate}>{item.HotelDetails.Address}</Text>
+        <Text style={styles.hotelPrice}>{item.HotelDetails.price}</Text>
       </View>
       <Ionicons name="chevron-forward" size={24} color="gray" />
     </View>
   );
 
+
+  const mergedMarkedDates = {
+    ...selectedCheckin.reduce((acc, date) => {
+      acc[date] = { selected: true, marked: true, selectedColor: 'blue' };
+      return acc;
+    }, {}),
+    ...selectedCheckout.reduce((acc, date) => {
+      acc[date] = { selected: true, marked: true, selectedColor: 'red' }; 
+      return acc;
+    }, {}),
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Schedule</Text>
@@ -49,10 +110,7 @@ const ScheduleScreen = () => {
 
       <Calendar
         current={'2024-09-01'}
-        onDayPress={(day) => setSelectedDate(day.dateString)}
-        markedDates={{
-          [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
-        }}
+        markedDates={mergedMarkedDates}
         theme={{
           arrowColor: 'black',
           todayTextColor: '#00adf5',
@@ -71,11 +129,9 @@ const ScheduleScreen = () => {
       <FlatList
         data={scheduleData}
         renderItem={renderScheduleItem}
-        keyExtractor={(item) => item.id}
-        style={styles.scheduleList}
+        keyExtractor={item => item.orderid} 
+        contentContainerStyle={styles.scheduleList}
       />
-
-     
     </View>
   );
 };
@@ -125,11 +181,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 10,
   },
-  hotelImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-  },
   hotelInfo: {
     flex: 1,
     marginLeft: 15,
@@ -144,13 +195,6 @@ const styles = StyleSheet.create({
   hotelPrice: {
     color: 'blue',
     fontWeight: 'bold',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopWidth: 1,
-    borderColor: '#ddd',
   },
 });
 

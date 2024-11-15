@@ -41,7 +41,7 @@ export default function UserLogin() {
 
      // Log the response to check
      const arr = [username, res.data];
-     console.log(arr);
+     
       if (res.data ) {
         navigation.navigate('home', {
           username: arr

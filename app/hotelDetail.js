@@ -10,7 +10,7 @@ if (Platform.OS === "android") {
   baseUrl = "http://172.20.10.9:5000";
 }
 
-const HotelDetailScreen = ({ hotelData }) => {
+const HotelDetailScreen = ({ hotelData,uid }) => {
   const [isModalVisible, setModalVisible] = useState(false);  // Default to false to show modal only on user interaction
   const [date, setDate] = useState(new Date());
   const [date2, setDate2] = useState(new Date());
@@ -36,7 +36,8 @@ const HotelDetailScreen = ({ hotelData }) => {
     
     const payload = {
         HotelID: hotelData.PostID,
-        UserID: hotelData.PosterID,
+        UserID: uid,
+        OwnerID:hotelData.PosterID,
         checkin: date.toISOString(),
         checkout: date2.toISOString(),  
         note: note

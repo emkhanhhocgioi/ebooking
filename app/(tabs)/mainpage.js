@@ -19,10 +19,42 @@ const MainPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hotelData ,setHotelData] = useState(null)
+ 
   const navigation = useNavigation();
  
-  const userName = route.params.username;
-  const userId = route.params.userId;
+  const arr = route.params.username;
+  const [uid ,setUID] = useState('')
+
+  
+
+  
+
+useEffect(() => {
+
+  setUID(arr); 
+
+
+  fetch10Post();
+}, [arr]); 
+
+useEffect(() => {
+  if (uid !== null) {
+    console.log('UID has been set:', uid); 
+  }
+}, [uid]);
+
+useEffect(() => {
+  if (meetups) {
+    console.log('Updated meetups:', meetups.posts[0].PostID);
+  }
+}, [meetups]);
+
+const handleButtonPress = (data) => {
+  
+  setModalVisible(true); 
+  console.log(data);
+  setHotelData(data);
+};
   const fetch10Post = async () => {
     try {
       setLoading(true); 
@@ -33,23 +65,6 @@ const MainPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetch10Post();
-  }, []);
-
-  useEffect(() => {
-    if (meetups) {
-      console.log('Updated meetups:', meetups.posts[0].PostID);
-      console.log(userId)
-    }
-  }, [meetups]);
-  const handleButtonPress = (data) => {
-    // Set data to be shown in the modal
-    setModalVisible(true); // Show the modal
-    console.log(data)
-    setHotelData(data)
   };
   const renderMeetups = () => (
     <FlatList
@@ -110,7 +125,7 @@ const MainPage = () => {
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
               <Icon name="close" size={30} color="#000" />
             </TouchableOpacity>
-            <HotelDetailScreen hotelData={hotelData}/>
+            <HotelDetailScreen hotelData={hotelData} uid={uid}/>
           </View>
         </View>
       </Modal>
