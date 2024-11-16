@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View,Button, Text,TextInput,Alert, Image, ScrollView, Platform, TouchableOpacity, StyleSheet, Modal } from 'react-native';  // Updated import
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -11,13 +11,15 @@ if (Platform.OS === "android") {
 }
 
 const HotelDetailScreen = ({ hotelData,uid }) => {
-  const [isModalVisible, setModalVisible] = useState(false);  // Default to false to show modal only on user interaction
+  const [isModalVisible, setModalVisible] = useState(false);  
   const [date, setDate] = useState(new Date());
   const [date2, setDate2] = useState(new Date());
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
   const [note,setNote] = useState('none');
- 
+  const [reviewData ,setReviewData] = useState([])
+
+
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShow(false);
@@ -69,18 +71,73 @@ const HotelDetailScreen = ({ hotelData,uid }) => {
 
     setModalVisible(false);
 };
+const renderReview = async () => {
+  try {
+    const res = await axios.get(`${baseUrl}/api/renderReview`, {
+      headers: { 'Content-Type': 'application/json' },
+      params: { hotelid: hotelData.PostID },
+    });
+    console.log(res.data);
+    setReviewData(res.data); 
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+useEffect(() => {
+  renderReview();
+}, []);
+   
+  
 
 
 
-
-  // if (!hotelData) {
-  //   console.log('nothing');
-  // } else {
-  //   console.log('something');
-  // }
-  // console.log(hotelData);
-
- 
+  const renderUserPost = () => {
+    if (Array.isArray(reviewData) && reviewData.length === 0) {
+      return <Text>No comments available</Text>;
+    }
+  
+    return (
+      <View style={styles.meetupList}>
+        {reviewData.map((item) => (
+          <View
+            key={item.rvid}
+            activeOpacity={0.7}
+            style={styles.postContainer}
+          >
+            <View style={styles.postDetails}>
+              <Text style={styles.postTitleText}>{item.ReviewerID}</Text>
+              <Text style={styles.postLocation}>{item.reviewcontent}</Text>
+              <Text style={styles.postRating}>⭐{item.rating}</Text>
+              <View style={styles.imageContainer}>
+              <Image
+                source={{
+                  uri:
+                    item.imgArr && item.imgArr.length > 0
+                      ? `${baseUrl}${item.imgArr[0]}`
+                      : 'default_image_url',
+                }}
+                style={styles.postImage}
+              />
+              <Image
+                source={{
+                  uri:
+                    item.imgArr && item.imgArr.length > 0
+                      ? `${baseUrl}${item.imgArr[1]}`
+                      : 'default_image_url',
+                }}
+                style={styles.postImage}
+              />
+            </View>
+            </View>
+            
+          </View>
+        ))}
+      </View>
+    );
+  };
+  
  
 
   return (
@@ -138,7 +195,8 @@ const HotelDetailScreen = ({ hotelData,uid }) => {
           <Image source={{ uri: `${baseUrl}${hotelData.imgArr[2]}` }} style={styles.previewImage} />
           <Image source={{ uri: `${baseUrl}${hotelData.imgArr[3]}` }} style={styles.previewImage} />
         </View>
-
+        <Text style={styles.sectionTitle}>Review</Text>
+        {reviewData.length > 0 ? renderUserPost() : <Text>No comments on this hotel.</Text>}
         {/* Booking Button */}
         <TouchableOpacity style={styles.bookingButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.bookingButtonText}>Booking Now</Text>
@@ -396,6 +454,46 @@ const styles = StyleSheet.create({
     color: 'white',
     marginLeft: 5,
     fontSize: 16,
+  },
+  postContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 10,
+    width: '90%',
+
+    marginTop: 10,
+  },
+  imageContainer: {
+    flexDirection: 'row',  // Align images horizontally
+    alignItems: 'center',   // Vertically align images to the center
+  },
+  postImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+  },
+  postDetails: {
+    marginLeft: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  postTitleText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  postLocation: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  postPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
+  postRating: {
+    fontSize: 16,
+    color: '#FFD700',
   },
   
 });

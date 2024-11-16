@@ -71,10 +71,10 @@ const createNewPost = async () => {
   const postID = random();
   const UID = userID;
   console.log(UID)
- // Assuming 'uname' is defined elsewhere
+
   const { hotelname, Address, Price, city, country, describe, Addon,} = postDetails;
 
-  // Utility function to validate parameters
+ 
   function validateParams(params) {
     for (const [key, value] of Object.entries(params)) {
       if (value === undefined || value === null || value === '') {
@@ -110,10 +110,6 @@ const createNewPost = async () => {
       }
     }
 
-
-    
-
- 
     formData.append('PostID', postID);
     formData.append('posterID', UID);
     formData.append('hotelname', hotelname);
@@ -723,7 +719,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     height:'70%',
-    width: '90%',
+    width: '100%',
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
@@ -782,6 +778,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 10,
+    marginRight:5,
   },
   postDetails: {
     marginLeft: 10,

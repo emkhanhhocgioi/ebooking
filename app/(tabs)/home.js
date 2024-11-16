@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Image } from 'react-native';
 import { Tabs, useNavigation } from 'expo-router';
 import axios from 'axios';
@@ -19,6 +19,8 @@ export default function Homscreen() {
   const route = useRoute();
   const arr = route.params.username;
   
+
+  console.log(arr[1].urole);
  
   const colorScheme = useColorScheme();
   const Tab = createBottomTabNavigator();
@@ -49,10 +51,11 @@ export default function Homscreen() {
             ),
           }}
         />
+        {arr[1].urole === 2 &&(
         <Tab.Screen
           name="schedule"
           component={ScheduleScreen}
-          initialParams={{ uid: arr[1] }}
+          initialParams={{ uid: arr[1].uid }}
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
@@ -60,18 +63,20 @@ export default function Homscreen() {
             ),
           }}
         />
-        <Tab.Screen
-          name="OrderList"
-          component={Orderlist}
-          initialParams={{uid: arr[1] }}
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <AntDesign name="calendar" size={size} color={color} />
-            ),
-          }}
-        />
-        
+         )}
+        {arr[1].urole === 1 && (
+          <Tab.Screen
+            name="OrderList"
+            component={Orderlist}
+            initialParams={{ uid: arr[1].uid }}
+            options={{
+              headerShown: false,
+              tabBarIcon: ({ color, size }) => (
+                <AntDesign name="calendar" size={size} color={color} />
+              ),
+            }}
+          />
+)}
       </Tab.Navigator>
     );
   };

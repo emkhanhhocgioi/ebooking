@@ -112,8 +112,11 @@ const login = async (req, res) => {
             if (document.Password != password) {
                 return res.status(400).json({ message: 'wrong user password' });
             }
-          
-            return res.send(document._id);
+             const logindata = {
+                uid:document._id,
+                urole:document.urole
+             }
+            return res.send(logindata);
         }
      } catch (error) {
         console.log(error);

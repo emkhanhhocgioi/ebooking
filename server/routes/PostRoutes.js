@@ -13,7 +13,7 @@ const storage = new GridFsStorage({
   options: { useNewUrlParser: true, useUnifiedTopology: true },
   
   file:(req,file)=>{
-    // console.log('File object:', file);
+    
     const postID = req.body.PostID;
     const userID = req.body.posterID;
     if (!postID) {

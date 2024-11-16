@@ -52,29 +52,41 @@ const   getUserOrders = async (req, res) => {
     }
   
     try {
-      const docs = await Order.find({ OwnerID: userID ,orderStatus:'Pending'});
-      
+      const docs = await Order.find({
+        OwnerID: userID,
+        orderStatus: { $in: ['Pending', 'Accepted','Checkin','Checkout'] }
+      });
+
       if (docs.length > 0) {
-        const documents = docs.map((doc) => {
-          return {
-            OrderID: doc._id,
-            UserID: doc.UserID,
-            OwnerID:doc.OwnerID,
-            HotelID: doc.HotelID,
-            Checkindate: doc.Checkindate,
-            Checkoutdate: doc.Checkoutdate,
-            Note: doc.Note,
-            orderDay: doc.orderDay,
-            orderStatus: doc.orderStatus,
-          };
-        });
+        
+        const documents = docs.map((doc) => ({
+          OrderID: doc._id,
+          UserID: doc.UserID,
+          OwnerID: doc.OwnerID,
+          HotelID: doc.HotelID,
+          Checkindate: doc.Checkindate,
+          Checkoutdate: doc.Checkoutdate,
+          Note: doc.Note,
+          orderDay: doc.orderDay,
+          orderStatus: doc.orderStatus,
+        }));
+      
+       
         const documentOrders = await Promise.all(
           documents.map(async (doc) => {
+            // Fetch user details
             const Userdoc = await Taikhoan.find({ _id: doc.UserID });
+      
+            if (Userdoc.length === 0) {
+              console.warn(`No user found for UserID: ${doc.UserID}`);
+              return []; 
+            }
+      
+            // Map user details into the final object
             return Userdoc.map((tk) => ({
-              OrderID: doc._id,
+              OrderID: doc.OrderID,
               UserID: doc.UserID,
-              OwnerID:doc.OwnerID,
+              OwnerID: doc.OwnerID,
               HotelID: doc.HotelID,
               Checkindate: doc.Checkindate,
               Checkoutdate: doc.Checkoutdate,
@@ -83,33 +95,39 @@ const   getUserOrders = async (req, res) => {
               orderStatus: doc.orderStatus,
               tkDetails: {
                 name: tk.Username,
-                checkinDate: tk.Email,
-                checkoutDate: tk.PhoneNumber,
-                
+                email: tk.Email,
+                phoneNumber: tk.PhoneNumber,
               },
             }));
           })
         );
+      
+        
         const flattenedDocumentOrders = documentOrders.flat();
+      
+   
        
-        return res.status(200).json(flattenedDocumentOrders);
+        res.json(flattenedDocumentOrders)
+   
       } else {
-        return res.status(200).json('There no orders');
+        console.log('No pending orders found for the given OwnerID.');
+        return [];
       }
+      
     } catch (error) {
       console.error('Error fetching orders:', error);
       return res.status(500).json({ message: 'Server error', error: error.message });
     }
   };
 
-  const AcceptOrders = async (req, res) => {
+  const AcceptOrders = async (req,res) =>{
     const { orderid } = req.body;  
   
-    
+    console.log(req.body)
     if (!orderid) {
       return res.status(400).json({ message: 'No Order ID found' });
     }else{
-     
+     console.log(orderid)
     }
   
     try {
@@ -122,16 +140,18 @@ const   getUserOrders = async (req, res) => {
   
       
       if (!doc) {
-        return res.status(404).json({ message: 'No Order found' });  // Changed to 404 for "not found"
+        return res.status(404).json({ message: 'No Order found' }); 
       }
   
-      // Respond with a success message if update is successful
+     
       return res.status(200).json({ message: 'Order Accepted', order: doc });
     } catch (error) {
       console.error('Error fetching orders:', error);
       return res.status(500).json({ message: 'Server error', error: error.message });
     }
-  };
+
+  }
+
   
   const DeniedOrders = async (req,res) =>{
     const { orderid } = req.body;  
@@ -140,7 +160,7 @@ const   getUserOrders = async (req, res) => {
     if (!orderid) {
       return res.status(400).json({ message: 'No Order ID found' });
     }else{
-     
+     console.log(orderid)
     }
   
     try {
@@ -164,6 +184,68 @@ const   getUserOrders = async (req, res) => {
     }
 
   }
+  const IsCheckin = async (req,res) =>{
+    const { orderid } = req.body;  
+    console.log(req.body)
+     
+    if (!orderid) {
+      return res.status(400).json({ message: 'No Order ID found' });
+    }else{
+     console.log(orderid)
+    }
+  
+    try {
+   
+      const doc = await Order.findOneAndUpdate(
+        { _id: orderid },
+        { $set: { orderStatus: 'Checkin' } },
+        { new: true }
+      );
+  
+      
+      if (!doc) {
+        return res.status(404).json({ message: 'No Order found' });  // Changed to 404 for "not found"
+      }
+  
+      // Respond with a success message if update is successful
+      return res.status(200).json({ message: 'Order Accepted', order: doc });
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+
+  }
+  const IsCheckout = async (req,res) =>{
+    const { orderid } = req.body;  
+  
+    
+    if (!orderid) {
+      return res.status(400).json({ message: 'No Order ID found' });
+    }else{
+     console.log(orderid)
+    }
+  
+    try {
+   
+      const doc = await Order.findOneAndUpdate(
+        { _id: orderid },
+        { $set: { orderStatus: 'Checkout' } },
+        { new: true }
+      );
+  
+      
+      if (!doc) {
+        return res.status(404).json({ message: 'No Order found' });  
+      }
+  
+      
+      return res.status(200).json({ message: 'Order Accepted', order: doc });
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+
+  }
    
   const getCustomerAcceptOrder = async(req,res) =>{
     const { userID } = req.query;
@@ -175,7 +257,11 @@ const   getUserOrders = async (req, res) => {
     try {
       
       
-      const postdoc = await Order.find({UserID:userID})
+      const postdoc = await Order.find({
+        UserID: userID,
+        orderStatus: { $in: ['Accepted', 'Checkin', 'Checkout'] }
+      });
+      
   
       if (postdoc.length > 0) {
         const documents = postdoc.map((doc) => ({
@@ -219,4 +305,6 @@ const   getUserOrders = async (req, res) => {
   }
 
 
-module.exports = {createOrder,getUserOrders,AcceptOrders,DeniedOrders,getCustomerAcceptOrder}
+module.exports = {createOrder,getUserOrders,AcceptOrders,
+  DeniedOrders,getCustomerAcceptOrder,
+  IsCheckin,IsCheckout}
