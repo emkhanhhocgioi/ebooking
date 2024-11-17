@@ -276,8 +276,7 @@ const   getUserOrders = async (req, res) => {
       
         const documentOrders = await Promise.all(
           documents.map(async (doc) => {
-            const orderdoc = await Post.find({ PostID: doc.hotelid }); // Using the correct field name for finding hotel
-      
+            const orderdoc = await Post.find({ PostID: doc.hotelid }); 
             return orderdoc.map((doc2) => ({
               orderid: doc.orderid,  
               checkinDate: doc.checkinDate,

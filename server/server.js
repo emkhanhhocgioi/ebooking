@@ -5,6 +5,7 @@ const accountRoutes = require('./routes/accountRoutes');
 const routerOrder = require('./routes/OrderRoutes');
 const PostRoutes = require('./routes/PostRoutes')
 const routerReview = require('./routes/ReviewRoutes') ;
+const routerAdmin = require('./routes/AdminRoutes')
 const cors = require('cors');
 
 const app = express();
@@ -15,6 +16,7 @@ app.use('/api/',PostRoutes)
 app.use('/api/', accountRoutes);
 app.use('/api/', routerOrder)
 app.use('/api/', routerReview)
+app.use('/api/', routerAdmin)
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/hardwaredb', {

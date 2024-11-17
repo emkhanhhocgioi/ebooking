@@ -1,7 +1,7 @@
 const taikhoan = require('../Model/accounts');
 const mongoose = require('mongoose');
 const { GridFSBucket } = require('mongodb');
-
+const {Types} = require('mongoose');
 
 const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
   useNewUrlParser: true,
@@ -125,64 +125,77 @@ const login = async (req, res) => {
 };
 
 const getUserData = async (req, res) => {
-  const { username } = req.query;
-
-  if (!username) {
+  const { uid } = req.query;
+  console.log(uid);
+  if (!uid) {
     return res.status(400).json({ message: 'No user found' });
   }
 
   try {
-    const document = await taikhoan.findOne({ Username: username });
+    const document = await taikhoan.findOne({ _id: uid });
+    const files = await gfs.find().toArray();
 
     if (!document) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+  
 
     const formattedDocument = {
       ObjecID: document._id,
       Email: document.Email,
       urole: document.urole,
       Desc: document.Desc,
-      PhoneNumber:document.PhoneNumber,
+      PhoneNumber: document.PhoneNumber,
       followercount: document.followercount,
       followingcount: document.followingcount,
       imgProfile: document.imgProfile,
     };
-   
-    res.json(formattedDocument)
-    
+
+    res.json(formattedDocument);
+
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-const getUserProfileImage = async (req, res) => {
-  const { imgname } = req.query;
-  console.log(imgname);
 
-  if (!imgname) {
+const getUserProfileImage = async (req, res) => {
+  const { imgid } = req.query;
+  console.log(imgid);
+  
+  
+  if (!imgid) {
     return res.status(400).json({ message: 'No image found' });
   }
-
+  
   if (!gfs) {
     return res.status(400).json({ message: 'No GFS' });
   }
-
+  
   try {
-    const files = await gfs.find({ filename: imgname }).toArray();
-
+ 
+    const ObjectID = new mongoose.Types.ObjectId(imgid);
+    console.log(ObjectID);
+  
+   
+    const files = await gfs.find({ _id: ObjectID }).toArray();
+  
     if (!files || files.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'No files available',
       });
     }
-
+  
     const file = files[0];
+  
 
     if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
       res.set('Content-Type', file.contentType);
-      const downloadStream = gfs.openDownloadStreamByName(imgname);  // Corrected here
+      
+     
+      const downloadStream = gfs.openDownloadStream(file._id); 
       downloadStream.pipe(res);
     } else {
       return res.status(400).json({ error: 'File is not an image' });
@@ -221,34 +234,40 @@ const editProfile = async (req, res) => {
 };
 
 const uploadProfile = async (req, res) => {
-  const { username, email, desc } = req.body;
-  const filename = req.file.filename;
+  const { uid, username, email, desc } = req.body;
 
-  // Check for missing username or file
-  if (!username) {
-    return res.status(400).json({ message: 'No username provided' });
-  }
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
+  console.log(req.body);
+ 
 
   try {
- 
+
+    const user = await taikhoan.findOne({ Username: username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    
+    
     const document = await taikhoan.findOneAndUpdate(
       { Username: username },
-      { $set: { Email: email, Desc: desc, imgProfile: filename } },
+      { 
+        $set: { 
+          Email: email, 
+          Desc: desc, 
+          imgProfile: req.file.id 
+        }
+      },
       { new: true }
     );
 
-
-    
-
+    // Step 4: Return success message
     return res.status(200).json({ message: 'Profile updated successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error updating user data");
   }
 };
+
 
 
 module.exports = { signup, login, getUserData, editProfile, uploadProfile, getUserProfileImage,signupPartner };

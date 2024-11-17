@@ -19,7 +19,10 @@ if (Platform.OS === "android") {
 
 const ProfileScreen = () => {
   const route = useRoute();
-  const uname = route.params?.username;
+  const arr = route.params.username;
+  const uname = arr[0];
+  const uid = arr[1].uid
+
   const navigation = useNavigation();
   //for profile update
   const [email, setEmail] = useState('');
@@ -70,11 +73,10 @@ const ProfileScreen = () => {
 const createNewPost = async () => {
   const postID = random();
   const UID = userID;
-  console.log(UID)
+  console.log(UID);
 
-  const { hotelname, Address, Price, city, country, describe, Addon,} = postDetails;
+  const { hotelname, Address, Price, city, country, describe, Addon } = postDetails;
 
- 
   function validateParams(params) {
     for (const [key, value] of Object.entries(params)) {
       if (value === undefined || value === null || value === '') {
@@ -84,9 +86,7 @@ const createNewPost = async () => {
   }
 
   const formData = new FormData();
-
   try {
-    
     validateParams({
       postID,
       UID,
@@ -97,14 +97,11 @@ const createNewPost = async () => {
       country,
       describe,
       Addon,
-     
       selectedImages
     });
 
-    
     let images = [...selectedImages];
     if (images.length < 4) {
-    
       while (images.length < 4) {
         images.push({ uri: '', fileName: 'placeholder.jpg', mimeType: 'image/jpeg' });
       }
@@ -119,19 +116,17 @@ const createNewPost = async () => {
     formData.append('country', country);
     formData.append('describe', describe);
     formData.append('Addon', Addon);
-  
+
     images.forEach(image => {
       formData.append('file', {
         uri: image.uri,
         name: image.fileName || 'upload.jpg',
         type: image.mimeType || 'image/jpeg',
-        
       });
     });
 
     console.log('Selected images:', selectedImages);
 
-   
     const res = await axios.post(`${baseUrl}/api/createpost`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -139,27 +134,16 @@ const createNewPost = async () => {
     });
 
     if (res.status === 201) {
-      console.log('Post created successfully');
+    
       Alert.alert("Post created successfully");
-      setPostDetails({
-        hotelname: '',
-        Address: '',
-        Price: '',
-        city: '',
-        country: '',
-        describe: '',
-        Addon: '',
-        
-      });
-      setSelectedImages([]);
-      setModalVisible2(false); 
+      setModalVisible2(false)
+
     } else {
       console.log('Error creating post', res.status);
     }
   } catch (error) {
     console.error('Error uploading:', error.message);
 
-   
     if (error.response) {
       console.log('Server responded with:', error.response.data.message || error.response.statusText);
     } else if (error.request) {
@@ -171,31 +155,34 @@ const createNewPost = async () => {
 };
 
 
-  const getUser = async (uname) => {
-    if (!uname) {
+  const getUser = async (uid) => {
+    if (!uid) {
       console.log('Username is missing');
       return;
     }
+    console.log(uid);
     try {
       const response = await axios.get(`${baseUrl}/api/getUserData`, {
         headers: {
           'Content-Type': 'application/json',
         },
         params: {
-          username: uname,
+          uid: uid,
         },
       });
       const data = response.data;
+      console.log(data)
       setUID(data.ObjecID||'')
       setDesc(data.Desc || '');
       setEmail(data.Email || '');
       setFollower(data.followercount || 0);
       setFollowing(data.followingcount || 0);
       setUrole(data.urole || '');
-      setImageProfie(data.imgProfile || '');
-      setImageUri(`${baseUrl}/api/image?imgname=${imgProf}`)
-      console.log(data.ObjecID)
-      console.log(imgProf)
+      console.log(data.imgProfile)
+      setImageUri(`${baseUrl}/api/image?imgid=${data.imgProfile}`)
+     
+      console.log(data)
+     
 
     } catch (error) {
       console.error('Error uploading:', error);
@@ -208,32 +195,7 @@ const createNewPost = async () => {
     }
     }
   };
-  const getUserProfileImage= async(imgProf)=>{
-    try {
-      const response = await axios.get(`${baseUrl}/api/image?imgname=${imgProf}`);
-      
-      if (response.data.success) {
-        setImageUri(`${baseUrl}/api/image?imgname=${imgProf}`); 
-       
-      } else {
-        setError('No image found');
-      }
-    } catch (err) {
-      setError('Error fetching image');
-    } finally {
-      setLoading(false);
-    }
-
-  }
-  useEffect(() => {
-    if (uname) {
-      getUser(uname);
-      getUserPost(userID);
-    }
-    
-  
-   
-  }, [uname,imgProf]);
+ 
 
   const pickImageAsync = async () => {
     try {
@@ -287,23 +249,23 @@ const createNewPost = async () => {
     }
   };
 
-const handleSaveChanges = async () => {
+const handleSaveChanges = async (uid) => {
   const formData = new FormData();
   
-  // Append the file if present
-  if (file) {
-    formData.append('file', {
-      uri: file.uri,
-      name: uname+'_'+file.fileName || 'upload.jpg', 
-      type: file.mimeType || 'image/jpeg',  
-    });
-  }
+  
+  console.log(uid)
 
- 
+  formData.append('uid',uid)
   formData.append('username', uname);
   formData.append('email', newEmail);
   formData.append('desc', newDesc);
-
+  if (file) {
+    formData.append('file', {
+      uri: file.uri,
+      name: file.fileName || 'upload.jpg', 
+      type: file.mimeType || 'image/jpeg',  
+    });
+  }
   try {
       const response = await axios.post(`${baseUrl}/api/upload/profile`, formData, {
           headers: {
@@ -315,7 +277,7 @@ const handleSaveChanges = async () => {
       if (response.status === 200) {
           Alert.alert('Profile updated successfully');
           setModalVisible(false);
-          getUser(uname);
+          getUser(uid);
       }
   } catch (error) {
     console.error('Error uploading:', error);
@@ -398,7 +360,15 @@ const getUserPost = async (userID) =>{
 }
 
 
+useEffect(() => {
+  if (uid) {
+    getUser(uid);
+    getUserPost(uid);
+  }
+  
 
+ 
+}, [uid]);
 
   return (
     <ScrollView style={styles.container}>
@@ -494,7 +464,7 @@ const getUserPost = async (userID) =>{
       </View>
 
       <View style={styles.modalButtons}>
-        <Button title="Save Changes" onPress={handleSaveChanges} />
+        <Button title="Save Changes" onPress={()=>handleSaveChanges(uid)} />
         <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
       </View>
     </View>

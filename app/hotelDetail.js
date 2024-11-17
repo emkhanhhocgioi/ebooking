@@ -18,7 +18,7 @@ const HotelDetailScreen = ({ hotelData,uid }) => {
   const [show2, setShow2] = useState(false);
   const [note,setNote] = useState('none');
   const [reviewData ,setReviewData] = useState([])
-
+  const [rating,SetRating] = useState(0);
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -31,7 +31,7 @@ const HotelDetailScreen = ({ hotelData,uid }) => {
     setDate2(currentDate);
   };
 
-  const createOrders = async () => {
+const createOrders = async () => {
     console.log(date, date2);
     console.log(note);
 
@@ -51,7 +51,7 @@ const HotelDetailScreen = ({ hotelData,uid }) => {
       
         const res = await axios.post(`${baseUrl}/api/createorder`, payload, {
             headers: {
-                'Content-Type': 'application/json',  // Set the content type to JSON
+                'Content-Type': 'application/json',  
             },
         });
 
@@ -77,16 +77,28 @@ const renderReview = async () => {
       headers: { 'Content-Type': 'application/json' },
       params: { hotelid: hotelData.PostID },
     });
-    console.log(res.data);
+    console.log(res.data[0]);
     setReviewData(res.data); 
   } catch (error) {
     console.log(error);
   }
 };
-
+const getReviewrating = async ()=>{
+     try {
+      const res = await axios.get(`${baseUrl}/api/countRating`, {
+        headers: { 'Content-Type': 'application/json' },
+        params: { postid: hotelData.PostID },
+      });
+      console.log(res.data)
+      SetRating(res.data)
+     } catch (error) {
+      console.log(error);
+     }
+}
 
 useEffect(() => {
   renderReview();
+  getReviewrating();
 }, []);
    
   
@@ -144,13 +156,8 @@ useEffect(() => {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.backButton}>{"<"}</Text>
-        </TouchableOpacity>
-        {/* Heart Icon */}
-        <TouchableOpacity style={styles.heartIconContainer}>
-          <Image source={require('C:/Users/hidra/GK2/assets/images/heart.jpg')} style={styles.heartIcon} />
-        </TouchableOpacity>
+      
+      
       </View>
 
       {/* Hotel Image */}
@@ -163,16 +170,20 @@ useEffect(() => {
       <View style={styles.infoContainer}>
         {/* Amenities */}
         <View style={styles.amenities}>
-          <View style={styles.amenityItem}>
-            <Image source={require('C:/Users/hidra/GK2/assets/images/wifi.jpg')} style={styles.amenityIcon} />
-            <Text style={styles.amenityText}>Free Wifi</Text>
-          </View>
+         
           <View style={styles.amenityItem}>
             <Image source={require('C:/Users/hidra/GK2/assets/images/food.jpg')} style={styles.amenityIcon} />
-            <Text style={styles.amenityText}>Free Breakfast</Text>
+            <Text style={styles.amenityText}>{hotelData.addon}</Text>
+            
+        
           </View>
+          <TouchableOpacity style={styles.amenityItem}>
+          <Image source={require('C:/Users/hidra/GK2/assets/images/heart.jpg')} style={styles.heartIcon} />
+          <Text style={styles.amenityText}>Favourite</Text>
+        </TouchableOpacity>
+          
           <View style={styles.amenityItem}>
-            <Text style={styles.ratingText}>⭐ 5.0</Text>
+            <Text style={styles.ratingText}>{rating}⭐</Text>
           </View>
         </View>
 
@@ -202,7 +213,7 @@ useEffect(() => {
           <Text style={styles.bookingButtonText}>Booking Now</Text>
         </TouchableOpacity>
       </View>
-
+      
       {/* Modal */}
       <Modal
       visible={isModalVisible}
@@ -264,7 +275,7 @@ useEffect(() => {
         </View>
         </View>
 
-        {/* Footer with Cancel and Book buttons */}
+     
         
       </View>
     </Modal>
@@ -465,8 +476,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   imageContainer: {
-    flexDirection: 'row',  // Align images horizontally
-    alignItems: 'center',   // Vertically align images to the center
+    flexDirection: 'row',  
+    alignItems: 'center',   
   },
   postImage: {
     width: 60,

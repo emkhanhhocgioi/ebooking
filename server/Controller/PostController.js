@@ -1,5 +1,6 @@
 
 const Post = require('../Model/PostModel')
+const Review = require('../Model/ReviewModel')
 const { GridFSBucket } = require('mongodb');
 const mongoose = require('mongoose');
 const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
@@ -131,7 +132,7 @@ const fecthAllPost = async (req, res) => {
                 const imgarr = files.filter(file => 
                     (file.contentType === 'image/jpeg' || file.contentType === 'image/png') &&
                     file.metadata?.postID === post.PostID
-                ).map(file => `/api/getpostimg?imgname=${file.filename}`);
+                ).map(file => `/api/getpostimg?imgid=${file._id}`);
     
                 return {
                     PostID: post.PostID,
@@ -158,32 +159,41 @@ const fecthAllPost = async (req, res) => {
     }
 };
 const renderPostImage = async(req,res) =>{
-    const { imgname } = req.query;
-    console.log(imgname);
-  
-    if (!imgname) {
+    const { imgid } = req.query;
+    console.log(imgid);
+    
+    
+    if (!imgid) {
       return res.status(400).json({ message: 'No image found' });
     }
-  
+    
     if (!gfs) {
       return res.status(400).json({ message: 'No GFS' });
     }
-  
+    
     try {
-      const files = await gfs.find({ filename: imgname }).toArray();
-  
+   
+      const ObjectID = new mongoose.Types.ObjectId(imgid);
+      console.log(ObjectID);
+    
+     
+      const files = await gfs.find({ _id: ObjectID }).toArray();
+    
       if (!files || files.length === 0) {
         return res.status(404).json({
           success: false,
           message: 'No files available',
         });
       }
-  
+    
       const file = files[0];
-  
+    
+
       if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
         res.set('Content-Type', file.contentType);
-        const downloadStream = gfs.openDownloadStreamByName(imgname);  // Corrected here
+        
+       
+        const downloadStream = gfs.openDownloadStream(file._id); 
         downloadStream.pipe(res);
       } else {
         return res.status(400).json({ error: 'File is not an image' });
@@ -193,4 +203,29 @@ const renderPostImage = async(req,res) =>{
     }
 }
 
-module.exports  = {createPost,fecthUserPost,fecthAllPost,renderPostImage}
+const countrating  = async(req,res) =>{
+    const {postid} = req.query;
+    
+    try {
+        
+        const ratings = await Review.find({ HotelID: postid });
+
+        if (ratings.length > 0) {
+         
+            const totalRating = ratings.reduce((sum, rate) => sum + rate.rating, 0);
+            const averageRating = totalRating / ratings.length;
+
+            console.log(`Average rating: ${averageRating}`);
+            res.json(averageRating)
+        } else {
+            console.log("No ratings found for this hotel.");
+}
+      
+      
+
+    } catch (error) {
+        
+        
+    }
+}
+module.exports  = {createPost,fecthUserPost,fecthAllPost,renderPostImage,countrating}

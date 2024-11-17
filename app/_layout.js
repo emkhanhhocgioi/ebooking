@@ -17,28 +17,10 @@ import Homscreen from './(tabs)/home';
 import HotelDetailScreen from './hotelDetail';
 import UpdateProfileScreen from './updateProfile';
 import DangKiPartner from './DangkiPartner';
+import Dashboard from './admin/AdminDashboard';
 const Stack = createNativeStackNavigator();
 
-const StackThing= () =>{
-  return(
-<SafeAreaView style={styles.container}>
-      <NavigationContainer independent={true}>
-        <Stack.Navigator initialRouteName="startPage">
-        <Stack.Screen name="startPage" component={StartPage}  options={{ headerShown: false}} />
-          <Stack.Screen name="list" component={LIST} options={{ headerShown: false}}  />
-          <Stack.Screen name="ip" component={Inputs} options={{ headerShown: false}} />
-          <Stack.Screen name="update" component={Updatecpn} options={{ headerShown: false}} />
-          <Stack.Screen name="login" component={UserLogin} options={{ headerShown: false}} />
-          <Stack.Screen name="signup" component={DangKi} options={{ headerShown: false}} />
-          <Stack.Screen name="home" component={Homscreen} options={{ headerShown: false}} />
-         
-          <Stack.Screen name="hoteldetail" component={HotelDetailScreen} options={{ headerShown: false}}/>
-          <Stack.Screen name="update_profile" component={UpdateProfileScreen} options={{ headerShown: false}}/>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaView>
-  )
-}
+
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
@@ -54,6 +36,7 @@ const App = () => {
           <Stack.Screen name="signupP" component={DangKiPartner} options={{ headerShown: false}}/>
           <Stack.Screen name="hoteldetail" component={HotelDetailScreen} options={{ headerShown: false}}/>
           <Stack.Screen name="update_profile" component={UpdateProfileScreen} options={{ headerShown: false}}/>
+          <Stack.Screen name="admin" component={Dashboard} options={{ headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

@@ -19,25 +19,33 @@ const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
 
 
   const createReview = async (req, res) => {
-    const { hotelid, reviewerId, reviewcontent, rating } = req.body;
-    console.log(req.body);
+    const { reviewId,hotelid, reviewerId, reviewcontent, rating } = req.body;
+    console.log(req.body.reviewId);  
 
-    // Correct condition to check for missing inputs
-    if (!hotelid || !reviewerId || !reviewcontent || !rating) {
+    // Kiểm tra các giá trị bắt buộc
+    if (!hotelid || !reviewerId || !reviewcontent || !rating||!reviewId) {
         return res.status(400).json({ message: 'Missing required input values' });
     }
 
     try {
+        // Tạo document review mới
         const doc = new Review({
+            ReviewID:reviewId,
             HotelID: hotelid,
             ReviewerID: reviewerId,
             reviewcontent: reviewcontent,
             rating: rating,
         });
-        await doc.save();
+
+        
+        const savedReview = await doc.save();
+
+        
+      
         return res.status(201).json({
             success: true,
             message: 'Review created successfully',
+            
         });
     } catch (error) {
         console.error(error);
@@ -64,7 +72,7 @@ const renderReview = async (req, res) => {
             const formattedReview = await Promise.all(docs.map(async (doc) => {
                 const imgArr = files.filter(file => 
                     (file.contentType === 'image/jpeg' || file.contentType === 'image/png') &&
-                    file.metadata?.HotelID === doc.HotelID
+                    file.metadata?.ReviewId === doc.ReviewID
                 ).map(file => `/api/renderReviewImg?imgid=${file._id}`);
 
                 return {

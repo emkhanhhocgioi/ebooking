@@ -42,7 +42,7 @@ export default function Homscreen() {
         <Tab.Screen
           name="profile"
           component={ProfileScreen}
-          initialParams={{ username: arr[0] }}
+          initialParams={{ username: arr }}
           options={{
             
             headerShown: false,

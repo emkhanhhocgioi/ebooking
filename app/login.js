@@ -41,14 +41,19 @@ export default function UserLogin() {
 
      // Log the response to check
      const arr = [username, res.data];
-     
-      if (res.data ) {
+      
+      if (!res.data.uid ===0 ) {
         navigation.navigate('home', {
           username: arr
-          
-        });
+          }
+        );
+        
+      
       } else {
-        setError('Invalid login credentials');
+        navigation.navigate('admin', {
+          username: arr
+          }
+        );
       }
 
     } catch (err) {

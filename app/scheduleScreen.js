@@ -97,7 +97,10 @@ const ScheduleScreen = () => {
   };
   
 
-   
+  const randomReviewID = () => {
+    return 'rev_' + Math.random().toString(36).substr(2, 9); 
+}
+
   const createReview = async (hotelid, reviewerId, reviewcontent, rating) => {
 
     if (!reviewcontent || !rating) {
@@ -105,7 +108,7 @@ const ScheduleScreen = () => {
       return;
     }
   
-   
+    const reviewid = randomReviewID();
     let images = [...selectedImages];
     if (images.length < 2) {
       while (images.length < 2) {
@@ -113,8 +116,9 @@ const ScheduleScreen = () => {
       }
     }
   
-    // Prepare form data
+ 
     const formData = new FormData();
+    formData.append('reviewId',reviewid)
     formData.append('hotelid', hotelid);
     formData.append('reviewerId', reviewerId);
     formData.append('reviewcontent', reviewcontent);
@@ -266,60 +270,64 @@ const ScheduleScreen = () => {
 
     {/* Modal for showing hotel details */}
     <Modal
-      animationType="slide"
-      transparent={false}
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
-    >
-      <View style={styles.modalContainer}>
-        <TouchableOpacity
-          style={styles.closeModal}
-          onPress={() => setModalVisible(false)}
-        >
-          <Ionicons name="close" size={30} color="black" />
-        </TouchableOpacity>
+  animationType="slide"
+  transparent={true}  // Changed to true for a better backdrop effect
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.overlay}>
+    <View style={styles.modalContainer}>
+      <TouchableOpacity
+        style={styles.closeModal}
+        onPress={() => setModalVisible(false)}
+      >
+        <Ionicons name="close" size={30} color="white" />
+      </TouchableOpacity>
 
-        {selectedHotel && (
-          <View style={styles.modalContent}>
-            <Text style={styles.hotelName}>{selectedHotel.HotelDetails.hotelName}</Text>
-            <Text style={styles.hotelDescription}>{selectedHotel.HotelDetails.Address}</Text>
-            <Text style={styles.hotelDate}>
-              {new Date(selectedHotel.checkinDate).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })}
-            </Text>
-            <Text style={styles.hotelPrice}>{selectedHotel.HotelDetails.price}$/night</Text>
+      {selectedHotel && (
+        <View style={styles.modalContent}>
+          <Text style={styles.hotelName}>{selectedHotel.HotelDetails.hotelName}</Text>
 
-            {/* Review TextArea */}
-            <TextInput
-              style={styles.reviewInput}
-              multiline
-              numberOfLines={4}
-              placeholder="Write your review here..."
-              value={review}
-              onChangeText={setReview}
-            />
-            <TouchableOpacity onPress={pickImageAsyncMutilple}>
-            <Ionicons name="image" size={30} color="black" />
-            </TouchableOpacity>
-            {/* Star Rating */}
-            <Text style={styles.ratingText}>Rate this hotel:</Text>
-            <Rating
-              showRating
-              onFinishRating={(rating) => setRating(rating)} // Handle rating change
-              startingValue={rating} // Initial value for the rating
-              imageSize={30} // Set the size of the stars
-              style={styles.rating} // Style for the rating component
-            />
-            <TouchableOpacity onPress={()=>{createReview(selectedHotel.HotelDetails.hotelid,userID,review,rating)}}>
-            <Ionicons name="image" size={30} color="black" />
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-    </Modal>
+          <Text style={styles.hotelDate}>
+            {new Date(selectedHotel.checkinDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+            })}
+          </Text>
+
+          {/* Review TextArea */}
+          <TextInput
+            style={styles.reviewInput}
+            multiline
+            numberOfLines={4}
+            placeholder="Write your review here..."
+            value={review}
+            onChangeText={setReview}
+          />
+          <TouchableOpacity style={styles.imageButton} onPress={pickImageAsyncMutilple}>
+            <Ionicons name="image" size={30} color="white" />
+            <Text style={styles.imageButtonText}>Add Images</Text>
+          </TouchableOpacity>
+
+          {/* Star Rating */}
+          <Text style={styles.ratingText}>Rate this hotel:</Text>
+          <Rating
+            showRating
+            onFinishRating={(rating) => setRating(rating)} // Handle rating change
+            startingValue={rating} // Initial value for the rating
+            imageSize={30} // Set the size of the stars
+            style={styles.rating} // Style for the rating component
+          />
+
+          <TouchableOpacity style={styles.submitButton} onPress={() => createReview(selectedHotel.HotelDetails.hotelid, userID, review, rating)}>
+            <Text style={styles.submitButtonText}>Submit Review</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  </View>
+</Modal>
   </View>
 );
 };
@@ -396,6 +404,84 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     marginBottom: 10,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    maxWidth: 400,
+    elevation: 10, // Adds shadow for Android
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeModal: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  modalContent: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  hotelName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  hotelDate: {
+    fontSize: 16,
+    color: '#777',
+    marginBottom: 20,
+  },
+  reviewInput: {
+    width: '100%',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginBottom: 20,
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  imageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  imageButtonText: {
+    color: 'white',
+    marginLeft: 10,
+    fontWeight: 'bold',
+  },
+  ratingText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  rating: {
+    marginBottom: 20,
+  },
+  submitButton: {
+    backgroundColor: '#28a745',
+    padding: 10,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
