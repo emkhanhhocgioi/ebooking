@@ -1,40 +1,37 @@
-import { StyleSheet, Image, Text, View, TouchableOpacity, TextInput, Platform } from "react-native";
-import axios from "axios";
-import React, { useState } from 'react';
-import { useNavigation } from 'expo-router';
 
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image,Platform } from 'react-native';
+import { useNavigation } from 'expo-router';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 var baseUrl = "http://localhost:5000";
 
 if (Platform.OS === "android") {
-    baseUrl = "http://10.0.2.2:5000";
+  baseUrl = "http://10.0.2.2:5000";
 }
 if (Platform.OS === "ios") {
-    baseUrl = "http://172.20.10.9:5000";
+  baseUrl = "http://172.20.10.9:5000";
 }
-
-
-export default function DangKiPartner() {
+const SignUpScreenCustomer = () => {
     const navigation = useNavigation();
     const [Username, setUsername] = useState('');
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
     const [ConfirmPassword, setConfirmPassword] = useState('');
     const [phonenumber,setPhonenumber] = useState('')
-    const [loading, setLoading] = useState(false); // Added loading state
+    const [loading, setLoading] = useState(false); 
 
     const handleSubmit = async () => {
         if (!Username || !Email || !Password || !ConfirmPassword) {
             alert("Vui lòng nhập đầy đủ tài khoản và mật khẩu");
             return;
         }
-    
         if (Password !== ConfirmPassword) {
             alert("Mật khẩu và xác nhận mật khẩu không khớp");
             return;
         }
-    
-        setLoading(true); // Start loading
+
+        setLoading(true); 
     
         const data = {
             uname: Username,
@@ -46,26 +43,25 @@ export default function DangKiPartner() {
         console.log(data);
     
         try {
-            const res = await axios.post(`${baseUrl}/api/signupPartner`, data, {
+            const res = await axios.post(`${baseUrl}/api/signup`, data, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
     
-            // Check for success status codes
             if (res.status >= 200 && res.status < 300) {
                 alert("Tạo tài khoản thành công");
-                navigation.navigate('home', { username: Username });
+                navigation.navigate('login');
             } else {
                 alert("Đã xảy ra lỗi khi tạo tài khoản");
             }
         } catch (error) {
             console.log(error.response ? error.response.data : error.message);
     
-            // Stop loading in case of error
+       
             setLoading(false);
     
-            // Better error handling based on error response
+     
             if (error.response) {
                 alert(error.response.data.message || "Không thể kết nối với máy chủ");
             } else if (error.request) {
@@ -74,15 +70,26 @@ export default function DangKiPartner() {
                 alert("Đã xảy ra lỗi khi thực hiện yêu cầu");
             }
         } finally {
-            // Ensure loading is stopped even if the request fails
+          
             setLoading(false);
         }
     };
-    
-    return (
-        <View style={styles.container}>
-            <LdImg />
-            <TextInput
+  return (
+    <View style={styles.container}>
+      
+      <View style={styles.illustrationContainer}>
+     
+        {/* <Image 
+          source={require('../assets/images/icons.png')} 
+          style={styles.illustration} 
+        /> */}
+      </View>
+
+      {/* Login Form */}
+      <View style={styles.formContainer}>
+        <Text style={styles.title}>Sign up</Text>
+        
+        <TextInput
                 style={styles.input}
                 placeholder="Username"
                 value={Username}
@@ -100,7 +107,7 @@ export default function DangKiPartner() {
                 placeholder="Phone number"
                 value={phonenumber}
                 onChangeText={setPhonenumber}
-                secureTextEntry={true}
+              
             />
             <TextInput
                 style={styles.input}
@@ -116,68 +123,92 @@ export default function DangKiPartner() {
                 onChangeText={setConfirmPassword}
                 secureTextEntry={true}
             />
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>signup</Text>
+        </TouchableOpacity>
+        
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
-                    <Text style={styles.buttonText}>
-                        {loading ? "Loading..." : "Sign Up with Booker"}
-                    </Text>
-                </TouchableOpacity>
-            </View>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Do you have an account? </Text>
+          <TouchableOpacity>
+            <Text style={styles.footerLink}>Login</Text>
+          </TouchableOpacity>
         </View>
-    );
-}
-
-const LdImg = () => {
-    return (
-        <View>
-            <Image
-                source={require('../assets/images/icons.png')}
-                style={styles.image}
-            />
-        </View>
-    );
+      </View>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "center", // Center the content vertically
-    },
-    image: {
-        width: 200,
-        height: 200,
-        resizeMode: 'cover',
-        borderRadius: 100,
-        marginBottom: 20, // Margin for spacing between image and inputs
-    },
-    input: {
-        height: 40,
-        width: '80%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginTop: 20, // Space from the icon
-    },
-    buttonContainer: {
+        backgroundColor: '#fff',
+        justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: 20, // Space above and below the buttons
-    },
-    button: {
-        backgroundColor: '#ffffff', // Button background color
-        borderRadius: 5,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        marginVertical: 10, // Space between buttons
-    },
-    buttonText: {
-        color: 'black',
+      },
+      illustrationContainer: {
+        flex: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      illustration: {
+        width: 300,
+        height: 350,
+        resizeMode: 'contain',
+       
+      },
+      formContainer: {
+        
+        flex: 1,
+        bottom:300,
+        width: '90%',
+        alignItems: 'center',
+      },
+      title: {
+        right:'40%',
+        fontSize: 24,
         fontWeight: 'bold',
-    },
-
-    signupText: {
-        marginTop: 15,
-    },
+        marginBottom: 20,
+      },
+      input: {
+        width: '100%',
+        height: 50,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        marginBottom: 15,
+        paddingHorizontal: 15,
+        fontSize: 16,
+      },
+      button: {
+        width: '100%',
+        height: 50,
+        backgroundColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+        marginBottom: 20, 
+      },
+      buttonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+      },
+      footer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 10, 
+      },
+      footerText: {
+        fontSize: 14,
+        color: '#666',
+      },
+      footerLink: {
+        fontSize: 14,
+        color: '#007BFF', 
+        fontWeight: 'bold',
+      },
 });
+
+export default SignUpScreenCustomer;

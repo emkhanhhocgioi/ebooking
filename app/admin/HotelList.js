@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FlatList, View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
-const baseUrl = "http://localhost:5000"; // Update with your actual base URL
+const baseUrl = "http://localhost:5000"; 
 
 const HotelList = () => {
   const [data, setData] = useState([]);

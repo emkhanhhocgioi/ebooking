@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import HotelDetailScreen from '../hotelDetail';
 import axios from 'axios';
+import DestinationScreen from '../blog/DestinationScreen';
 import { useRoute } from '@react-navigation/native';
 let baseUrl = "http://localhost:5000";
 if (Platform.OS === "android") {
@@ -19,7 +20,8 @@ const MainPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hotelData ,setHotelData] = useState(null)
- 
+  const [isDesitnationVis,setDestinationVis] = useState(false);
+  const [ScreenType,setScreenType] = useState(0);
   const navigation = useNavigation();
  
   const arr = route.params.username;
@@ -55,7 +57,7 @@ const handleButtonPress = (data) => {
   console.log(data);
   setHotelData(data);
 };
-  const fetch10Post = async () => {
+const fetch10Post = async () => {
     try {
       setLoading(true); 
       const res = await axios.get(`${baseUrl}/api/getpost`);
@@ -66,7 +68,7 @@ const handleButtonPress = (data) => {
       setLoading(false);
     }
   };
-  const renderMeetups = () => (
+const renderMeetups = () => (
     <FlatList
       data={meetups.posts}
       renderItem={({ item }) => (
@@ -86,7 +88,16 @@ const handleButtonPress = (data) => {
       contentContainerStyle={styles.meetupList}
     />
   );
+const handleDestPress = () =>{
+  setDestinationVis(true)
+  setScreenType(2)
 
+}
+const handleDestExplore = () =>{
+  setDestinationVis(true)
+  setScreenType(0)
+
+}
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -96,23 +107,31 @@ const handleButtonPress = (data) => {
       
   
       <View style={styles.iconsRow}>
-        <TouchableOpacity style={styles.iconButton}>
-          <Icon name="camera-outline" size={24} color="#000" />
+        <TouchableOpacity style={styles.iconButton} onPress={handleDestExplore} >
+          <Icon name="earth" size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton}>
           <Icon name="heart-outline" size={24} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity style={styles.iconButton} onPress={handleDestPress}  >
           <Icon name="triangle-outline" size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton}>
           <Icon name="happy-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
-  
+              {
+              ScreenType === 0 ? (
+                meetups && meetups.posts ? renderMeetups() : <Text>Loading...</Text>
+              ) : ScreenType === 2 ? (
+                 <DestinationScreen></DestinationScreen>
+              ):(
+                <Text>Screen Type is not 0</Text>
+              )
+            }
       {/* Render meetups only if they are available */}
-      {meetups && meetups.posts ? renderMeetups() : <Text>Loading...</Text>}
-  
+    
+       
       <Modal
         data={hotelData}
         visible={isModalVisible}

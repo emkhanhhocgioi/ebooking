@@ -245,7 +245,7 @@ const Orderlist = () => {
           {selectedOrder.tkDetails?.phoneNumber}
         </Text>
         
-        {selectedOrder.orderStatus === 'Accepted' ? (
+        {selectedOrder.orderStatus === 'Accepted'||selectedOrder.orderStatus === 'Pending' ? (
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={styles.actionButton}

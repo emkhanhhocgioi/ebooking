@@ -302,8 +302,63 @@ const   getUserOrders = async (req, res) => {
       return res.status(500).json({ message: 'Server error', error: error.message });
     }
   }
+  const getCustomerCheckoutOrder = async(req,res) =>{
+    const { userID } = req.query;
+  
+    if (!userID) {
+      return res.status(400).json({ message: 'No user ID found' });
+    }
+  
+    try {
+      
+      
+      const postdoc = await Order.find({
+        UserID: userID,
+        orderStatus: { $in: ['Checkout'] }
+      });
+      
+  
+      if (postdoc.length > 0) {
+        const documents = postdoc.map((doc) => ({
+          orderid: doc._id,
+          hotelid: doc.HotelID, 
+          checkinDate: doc.Checkindate,
+          checkoutDate: doc.Checkoutdate,
+          status: doc.orderStatus,
+        }));
+        
+        console.log(documents);
+      
+        const documentOrders = await Promise.all(
+          documents.map(async (doc) => {
+            const orderdoc = await Post.find({ PostID: doc.hotelid }); 
+            return orderdoc.map((doc2) => ({
+              orderid: doc.orderid,  
+              checkinDate: doc.checkinDate,
+              checkoutDate: doc.checkoutDate,
+              status: doc.status,
+              HotelDetails: {
+                hotelid: doc2.PostID,
+                hotelName: doc2.HotelName,
+                Address: doc2.Address,
+                price: doc2.price,
+              },
+            }));
+          })
+        );
+      
+        const flattenedDocumentOrders = documentOrders.flat();  
+        res.json(flattenedDocumentOrders);  
+      } else {
+        return res.status(200).json('There are no orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
 
 
 module.exports = {createOrder,getUserOrders,AcceptOrders,
   DeniedOrders,getCustomerAcceptOrder,
-  IsCheckin,IsCheckout}
+  IsCheckin,IsCheckout,getCustomerCheckoutOrder}

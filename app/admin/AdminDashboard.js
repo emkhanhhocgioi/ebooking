@@ -6,7 +6,7 @@ import UserList from './UserList';
 import OrderList from './OrderList';
 import ReviewList from './ReviewList';
 import HotelList from './HotelList';
-
+import DestinationInput from './destinationInput';
 let baseUrl = "http://localhost:5000";
 if (Platform.OS === "android") {
   baseUrl = "http://10.0.2.2:5000";
@@ -21,6 +21,8 @@ const Dashboard = () => {
  
   
  
+  
+  
  
 
  
@@ -44,6 +46,11 @@ const Dashboard = () => {
     
     setListtyep(4)
   };
+  const handleOpenModaDest = () => {
+    setModalVisible(true);
+    
+    setListtyep(5)
+  };
 
   const handleCloseModal= () => {
     setModalVisible(false);
@@ -60,6 +67,7 @@ const Dashboard = () => {
         <TouchableOpacity style={styles.sidebarItem} onPress={handleOpenModalhotel}>Hotel</TouchableOpacity>
         <TouchableOpacity style={styles.sidebarItem} onPress={handleOpenModaOrder}>Orders</TouchableOpacity>
         <TouchableOpacity style={styles.sidebarItem} onPress={handleOpenModaReview}>Review</TouchableOpacity>
+        <TouchableOpacity style={styles.sidebarItem} onPress={handleOpenModaDest}>Destination</TouchableOpacity>     
       </View>
 
       {/* Main content */}
@@ -92,6 +100,10 @@ const Dashboard = () => {
       <Text style={styles.closeButtonText}>Close</Text>
     </TouchableOpacity>
   </ScrollView>
+) : listtype === 5 ? (
+   <DestinationInput>
+
+   </DestinationInput>
 ) : null}
       </View>
     </View>

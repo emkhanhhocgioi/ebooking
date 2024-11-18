@@ -21,7 +21,8 @@ const ProfileScreen = () => {
   const route = useRoute();
   const arr = route.params.username;
   const uname = arr[0];
-  const uid = arr[1].uid
+  const uid = arr[1].uid;
+  const userorl = arr[1].urole;
 
   const navigation = useNavigation();
   //for profile update
@@ -325,10 +326,25 @@ const renderUserPost = () => (
     ))}
   </View>
 );
-
-
-
-
+const renderhistory = () => {
+  return (
+    <View style={styles.meetupList}>
+      {postData && postData.length > 0 ? (
+        postData.map((item) => (
+          <View key={item.orderid} style={styles.postContainer}>
+            <View style={styles.postDetails}>
+              <Text style={styles.postTitleText}>{item.HotelDetails.hotelName}</Text>
+              <Text style={styles.postLocation}>{item.HotelDetails.Address}</Text>
+              <Text style={styles.postLocation}>{item.checkoutDate}</Text>
+            </View>
+          </View>
+        ))
+      ) : (
+        <Text>No booking history found.</Text>
+      )}
+    </View>
+  );
+};
 
 const getUserPost = async (userID) =>{
       if(!userID){
@@ -346,8 +362,7 @@ const getUserPost = async (userID) =>{
           userID: userID,
         },
       })
-      // console.log(res.data)
-
+      
       setPostData(res.data)
       
       
@@ -358,12 +373,44 @@ const getUserPost = async (userID) =>{
       }
 
 }
+const getUserhistory =async(userID)=>{
+  if(!userID){
+    console.log('not found userID')
+  }
+  console.log(userID)
+
+  try {
+    setLoading2(true)
+    const res = await axios.get(`${baseUrl}/api/bookinghistory`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    params: {
+      userID: userID,
+    },
+  })
+  
+  console.log(res.data)
+  setPostData(res.data)
+  
+  
+  } catch (error) {
+    
+  }finally{
+    setLoading(false);
+  }
+}
 
 
 useEffect(() => {
   if (uid) {
     getUser(uid);
+    if(userorl===1){
     getUserPost(uid);
+    }
+    if(userorl===2){
+    getUserhistory(uid)
+    }
   }
   
 
@@ -410,20 +457,28 @@ useEffect(() => {
           {desc || 'Enjoy your favorite dish and a lovely time with friends and family.'} <Text style={styles.readMore}>Read More</Text>
         </Text>
       </View>
-
-      {/* post */}
-      <View style={styles.section}>
-        <View style={styles.interestHeader}>
-          <Text style={styles.sectionTitle}>Post</Text>
-          <TouchableOpacity style={styles.changeButton}>
-            <Icon name="pencil-outline" size={12} color="#4A55A2" />
-            <Text style={styles.changeButtonText} onPress={() => setModalVisible2(true)}>create Post</Text>
-          </TouchableOpacity>
-         
+      {urole === 1 ? (
+        <View>
+        <View style={styles.section}>
+          <View style={styles.interestHeader}>
+            <Text style={styles.sectionTitle}>Post</Text>
+            <TouchableOpacity style={styles.changeButton}>
+              <Icon name="pencil-outline" size={12} color="#4A55A2" />
+              <Text style={styles.changeButtonText} onPress={() => setModalVisible2(true)}>create Post</Text>
+            </TouchableOpacity>
+            
+          </View>
         </View>
-      </View>
-        {postData && postData.post ? renderUserPost() : <Text>Loading...</Text>}
+          {postData && postData.post ? renderUserPost() : <Text>Loading...</Text>}
+          </View>
+) : urole === 2 ? (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>Your History:</Text>
+     {postData  ? renderhistory() : <Text>Loading...</Text>}
+  </View>
+) : null}
 
+      
       {/* Modal for Editing Profile */}
       
 <Modal

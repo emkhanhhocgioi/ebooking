@@ -38,7 +38,7 @@ const createOrders = async () => {
     
     const payload = {
         HotelID: hotelData.PostID,
-        UserID: uid,
+        UserID: uid.uid,
         OwnerID:hotelData.PosterID,
         checkin: date.toISOString(),
         checkout: date2.toISOString(),  
