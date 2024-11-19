@@ -7,7 +7,6 @@ const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
-  
   let gfs;
   conn.once('open', () => {
     gfs = new GridFSBucket(conn.db, { bucketName: 'POSTIMGS' });
@@ -65,7 +64,6 @@ const createPost = async(req,res) =>{
 }
 const fecthUserPost = async (req, res) => {
     const { userID } = req.query;
-    const imgarr = [];
 
     if (!userID) {
         console.log('No user ID');
@@ -78,31 +76,27 @@ const fecthUserPost = async (req, res) => {
         if (documents.length > 0) {
             const files = await gfs.find().toArray();
 
-            
-            const imagePromises = files
-                .filter(file => file.metadata && file.metadata.UID === userID)
-                .filter(file => file.contentType === 'image/jpeg' || file.contentType === 'image/png')
-                .forEach(file => {
+            const formattedDocuments = await Promise.all(documents.map(async doc => {
+                const imgarr = files
+                    .filter(file => file.metadata && file.metadata.postID === doc.PostID)
+                    .filter(file => file.contentType === 'image/jpeg' || file.contentType === 'image/png')
+                    .map(file => `/api/getpostimg?imgid=${file._id}`);
 
-                    imgarr.push(`/api/getpostimg?imgname=${file.filename}`);
-                   
-                   
-                });
-        
-            const formattedDocuments = documents.map(doc => ({
-                PostID: doc.PostID,
-                HotelName: doc.HotelName,
-                Address: doc.Address,
-                price: doc.price,
-                city: doc.city,
-                country: doc.country,
-                describe: doc.describe,
-                addon: doc.addon,
-                rating: doc.rating,
-                images: imgarr
+                return {
+                    PostID: doc.PostID,
+                    HotelName: doc.HotelName,
+                    Address: doc.Address,
+                    price: doc.price,
+                    city: doc.city,
+                    country: doc.country,
+                    describe: doc.describe,
+                    addon: doc.addon,
+                    rating: doc.rating,
+                    images: imgarr
+                };
             }));
             
-            res.json({ post: formattedDocuments});
+            res.json({ post: formattedDocuments });
         } else {
             res.status(404).json({ error: 'Post not found' });
         }
@@ -111,8 +105,8 @@ const fecthUserPost = async (req, res) => {
         console.error('Error fetching user post:', error);
         res.status(500).json({ error: 'Server error', details: error.message });
     }
-    
 };
+
 const fecthAllPost = async (req, res) => {
    
     
@@ -228,4 +222,148 @@ const countrating  = async(req,res) =>{
         
     }
 }
-module.exports  = {createPost,fecthUserPost,fecthAllPost,renderPostImage,countrating}
+
+const sortingPost = async (req, res) => {
+    const { postSelectedValue, selectedvldata } = req.body;
+  
+    // Validate input
+    if (!postSelectedValue || !selectedvldata) {
+      return res.status(400).json({ error: "Invalid request parameters." });
+    }
+  
+    // Logging inputs for debugging
+    console.log(postSelectedValue);
+    console.log(selectedvldata);
+  
+    try {
+    
+      const docs = await Promise.all(
+        postSelectedValue.map(async (vl) => {
+          const documents = await Promise.all(
+            selectedvldata.map(async (data) => {
+       
+              const result = await Post.find({ [vl]: data });
+              const files = await gfs.find({}).toArray();
+              const formattedDocuments = result.map((rs) => {
+               
+                let imgarr = files
+                  .filter(
+                    (file) =>
+                      (file.contentType === "image/jpeg" ||
+                        file.contentType === "image/png") &&
+                      file.metadata?.postID === rs.PostID
+                  )
+                  .map((file) => `/api/getpostimg?imgid=${file._id}`);
+  
+                return {
+                  PostID: rs.PostID,
+                  PosterID: rs.PosterID,
+                  HotelName: rs.HotelName,
+                  Address: rs.Address,
+                  price: rs.price,
+                  city: rs.city,
+                  country: rs.country,
+                  describe: rs.describe,
+                  addon: rs.addon,
+                  rating: rs.rating,
+                  imgArr: imgarr,
+                };
+              });
+              return formattedDocuments; 
+            })
+          );
+  
+          return documents.flat(); 
+        })
+      );
+  
+      // Flatten the final result
+      const flatendocs = docs.flat(); 
+      console.log(flatendocs);
+      res.json(flatendocs); 
+  
+    } catch (error) {
+     
+      console.error(error);
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+  const updatePost = async (req, res) => {
+    const { PostID, HotelName, Address, price, city, country, describe, addon } = req.body;
+  
+    // Kiểm tra dữ liệu yêu cầu
+    if (!PostID || !HotelName || !Address || !price || !city || !country || !describe || !addon) {
+      return res.status(400).json('Missing required data'); 
+    }
+  
+    console.log(req.body);
+  
+    try {
+   
+      const docs = await Post.findOneAndUpdate(
+        { PostID: PostID }, 
+        {
+          $set: {
+            HotelName: HotelName,
+            Address: Address,
+            price: price,
+            city: city,
+            country: country,
+            describe: describe,
+            addon: addon,
+          },
+        },
+        { new: true } 
+      );
+  
+     
+      if (!docs) {
+        return res.status(400).json({ message: 'No hotel found' });
+      }
+  
+      return res.status(200).json({ message: 'Data update successful', hotel: docs });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send("Error updating hotel data"); // Dùng return để kết thúc hàm
+    }
+  };
+  
+const deleteExistPostimg = async (req, res) => {
+  const { postid } = req.body;
+  console.log(postid)
+
+  if (!postid) {
+    return res.status(400).json({ error: 'Missing postid' });
+  }
+
+  try {
+
+    const files = await gfs.find({}).toArray();
+
+    const imgarr = files.filter(
+      file =>
+        (file.contentType === 'image/jpeg' || file.contentType === 'image/png') &&
+        file.metadata?.postID === postid
+    );
+
+  
+    if (imgarr.length === 0) {
+      return res.status(200).json({ message: 'No images found for the given postid' });
+    }
+
+    for (const img of imgarr) {
+      await gfs.delete(new mongoose.Types.ObjectId(img._id));
+    }
+
+    return res.status(200).json({ message: 'Images deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting images:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports  = {createPost,fecthUserPost,
+    fecthAllPost,renderPostImage,
+    countrating,
+    sortingPost,updatePost,deleteExistPostimg}

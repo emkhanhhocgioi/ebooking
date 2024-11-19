@@ -195,7 +195,7 @@ const deleteReview = async (req, res) => {
     }
 };
 const createDestination = async(req,res) =>{
-    const {DestinationName,DestinationDesc} = req.body;
+    const {DestinationName,destcountry,DestinationDesc} = req.body;
 
     if(!DestinationName){
         res.status(400).json('no desc')
@@ -214,6 +214,7 @@ const createDestination = async(req,res) =>{
         const doc = new Dest({
             DestinationName:DestinationName,
             DestinationDesc:DestinationDesc,
+            DestinationCountry:destcountry,
             Destinationimg:req.file.id,
      
         })
@@ -233,6 +234,7 @@ const renderDestination = async (req, res) => {
       const formatdocs = docs.map(doc => ({
         id:doc._id,
         destname: doc.DestinationName,
+        destcountry: doc.DestinationCountry,
         desc: doc.DestinationDesc,
         img: `/api/images/getdestimg?imgid=${doc.Destinationimg}`,
       }));

@@ -14,7 +14,7 @@ import ScheduleScreen from '../scheduleScreen';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Orderlist from './OrderList';
-
+import HotelInputForm from '../Partner/postcreate';
 export default function Homscreen() {
   const route = useRoute();
   const arr = route.params.username;
@@ -64,19 +64,33 @@ export default function Homscreen() {
           }}
         />
          )}
-        {arr[1].urole === 1 && (
-          <Tab.Screen
-            name="OrderList"
-            component={Orderlist}
-            initialParams={{ uid: arr[1].uid }}
-            options={{
-              headerShown: false,
-              tabBarIcon: ({ color, size }) => (
-                <AntDesign name="calendar" size={size} color={color} />
-              ),
-            }}
-          />
-)}
+       {arr[1].urole === 1 && (
+  <>
+      <Tab.Screen
+        name="OrderList"
+        component={Orderlist}
+        initialParams={{ uid: arr[1].uid }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="calendar" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Hotel Create"
+        component={HotelInputForm}
+        initialParams={{ uid: arr[1].uid }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="home" size={size} color={color} />
+          ),
+        }}
+      />
+    </>
+  )}
+
       </Tab.Navigator>
     );
   };

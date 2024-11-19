@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import HotelDetailScreen from '../hotelDetail';
 import axios from 'axios';
 import DestinationScreen from '../blog/DestinationScreen';
+import SortingScreen from '../blog/SortingPost';
 import { useRoute } from '@react-navigation/native';
 let baseUrl = "http://localhost:5000";
 if (Platform.OS === "android") {
@@ -21,6 +22,7 @@ const MainPage = () => {
   const [loading, setLoading] = useState(true);
   const [hotelData ,setHotelData] = useState(null)
   const [isDesitnationVis,setDestinationVis] = useState(false);
+  const [isSortVis,setSortVis] = useState(false);
   const [ScreenType,setScreenType] = useState(0);
   const navigation = useNavigation();
  
@@ -98,10 +100,14 @@ const handleDestExplore = () =>{
   setScreenType(0)
 
 }
+const handleSort = () =>{
+  setSortVis(true)
+  setScreenType(1)
+}
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <TextInput style={styles.searchInput} placeholder="Search" />
+     
       </View>
   
       
@@ -116,7 +122,7 @@ const handleDestExplore = () =>{
         <TouchableOpacity style={styles.iconButton} onPress={handleDestPress}  >
           <Icon name="triangle-outline" size={24} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity style={styles.iconButton}  onPress={handleSort}>
           <Icon name="happy-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
@@ -125,9 +131,9 @@ const handleDestExplore = () =>{
                 meetups && meetups.posts ? renderMeetups() : <Text>Loading...</Text>
               ) : ScreenType === 2 ? (
                  <DestinationScreen></DestinationScreen>
-              ):(
-                <Text>Screen Type is not 0</Text>
-              )
+              ): ScreenType === 1 ?(
+                <SortingScreen></SortingScreen>
+              ) : null
             }
       {/* Render meetups only if they are available */}
     

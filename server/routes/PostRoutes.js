@@ -7,7 +7,7 @@ const { route } = require('./accountRoutes');
 
 const {createPost,fecthUserPost, fecthAllPost,
    renderPostImage
-  ,countrating} = require('../Controller/PostController')
+  ,countrating,sortingPost,updatePost,deleteExistPostimg} = require('../Controller/PostController')
 // MongoDB connection string
 
 const storage = new GridFsStorage({
@@ -17,7 +17,7 @@ const storage = new GridFsStorage({
   file:(req,file)=>{
     
     const postID = req.body.PostID;
-    const userID = req.body.posterID;
+    
     if (!postID) {
       throw new Error('postID is missing');
     }
@@ -28,7 +28,7 @@ const storage = new GridFsStorage({
       bucketName:'POSTIMGS',
       metadata:{
         postID: postID,
-        UID: userID,
+        
       }
     }
   }
@@ -43,4 +43,7 @@ routerPost.get("/getuserpost",fecthUserPost)
 routerPost.get('/getpost',fecthAllPost)
 routerPost.get('/getpostimg',renderPostImage)
 routerPost.get('/countRating',countrating)
+routerPost.post('/getpost/sorted',sortingPost)
+routerPost.post('/updatepost',upload.array('file',4),updatePost)
+routerPost.post('/delete/postexistimg',deleteExistPostimg)
 module.exports = routerPost;

@@ -21,6 +21,7 @@
     "@expo-google-fonts/raleway": "^0.2.3",
     "@expo/vector-icons": "^14.0.4",
     "@react-native-community/datetimepicker": "^8.2.0",
+    "@react-native-picker/picker": "^2.9.0",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/native-stack": "^6.11.0",
     "axios": "^1.7.7",

@@ -7,7 +7,7 @@ import {
   StyleSheet, 
   TextInput, 
   TouchableOpacity, 
-  Platform 
+  Platform,Picker
 } from 'react-native';
 import axios from 'axios';
 
@@ -22,7 +22,12 @@ const DestinationInput = () => {
   const [data, setData] = useState([]);
   const [destName, setDestName] = useState('');
   const [destdesc, setDestDesc] = useState('');
+  const [selectedcountry,setSelectedCountry] = useState('')
   const [image, setImage] = useState(null);
+  const [countries, setCountries] = useState([]);
+
+  
+  
 
   const getDestinationData = async () => {
     try {
@@ -53,6 +58,7 @@ const DestinationInput = () => {
     const formData = new FormData();
     formData.append('DestinationName', destName);
     formData.append('DestinationDesc', destdesc);
+    formData.append('destcountry',selectedcountry)
     formData.append('file', image);
 
     try {
@@ -62,7 +68,7 @@ const DestinationInput = () => {
         },
       });
       if (res.data) {
-        Alert.alert('Create new Destination success');
+        alert('Create new Destination success');
         getDestinationData(); // Reload the data after creation
       }
     } catch (error) {
@@ -81,13 +87,23 @@ const DestinationInput = () => {
   useEffect(() => {
     getDestinationData();
   }, []);
-
+  useEffect(() => {
+    fetch('https://restcountries.com/v3.1/all')
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log(data)
+        setCountries(data);
+      })
+      .catch((error) => console.error(error));
+  }, []);
+  useEffect(() => {
+    console.log(selectedcountry)
+  }, [selectedcountry]);
   return (
     <View style={{ padding: 20 }}>
-      {/* Title for destination list */}
-      <Text style={styles.title}>Destination List</Text>
+     
 
-      {/* Header row for columns */}
+     
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>Destination Name</Text>
         <Text style={styles.headerText}>Description</Text>
@@ -102,6 +118,8 @@ const DestinationInput = () => {
             <View style={styles.listItemColumn}>
               <Text style={styles.listItemText}>{item.destname}</Text>
             </View>
+            
+            
             <View style={styles.listItemColumn}>
               <Text style={styles.listItemText}>{item.desc}</Text>
             </View>
@@ -128,13 +146,30 @@ const DestinationInput = () => {
         value={destdesc}
         onChangeText={setDestDesc}
       />
+      {countries && countries.length > 0 ? (
+              <Picker
+                selectedValue={selectedcountry}
+                onValueChange={(value) => setSelectedCountry(value)}
+                style={styles.picker}
+              >
+                {countries.map((country) => (
+                  <Picker.Item 
+                    label={country.name.common} 
+                    key={country.cca2} 
+                    value={country.code} 
+                  />
+                ))}
+                    </Picker>
+                  ) : null}
       {Platform.OS === 'web' && (
-        <input
-          type="file"
-          onChange={handleFileSelect}
-          style={styles.fileInput}
-        />
-      )}
+  <View style={{ marginBottom: 15 }}>
+    <input
+      type="file"
+      onChange={handleFileSelect}
+      style={styles.fileInput}
+    />
+  </View>
+)}
       <TouchableOpacity style={styles.uploadButton} onPress={createDest}>
         <Text style={styles.uploadButtonText}>Create Destination</Text>
       </TouchableOpacity>
@@ -200,8 +235,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   fileInput: {
-    display: 'none',
+    zIndex: 1, // Đảm bảo nằm trên các thành phần khác
+    position: 'relative', // Đặt vị trí cụ thể
+    display: 'block', // Hiển thị rõ ràng
+    marginBottom: 15, // Thêm khoảng cách giữa các thành phần
+    padding: 10, // Đảm bảo kích thước dễ nhấn
+    backgroundColor: '#f8f9fa', // Tùy chọn màu nền
+    borderRadius: 5, // Làm mềm các góc
+    borderWidth: 1, // Đường viền
+    borderColor: '#ccc', // Màu viền
   },
+  
 
   headerRow: {
     flexDirection: 'row',

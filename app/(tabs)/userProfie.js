@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRoute } from '@react-navigation/native';
 import HotelDetailScreen from '../hotelDetail';
+import UpdatePost from '../Partner/updatehotel';
 import axios from 'axios';
 
 
@@ -56,104 +57,13 @@ const ProfileScreen = () => {
   const [loading2, setLoading2] = useState(true);
   const [postData,setPostData] = useState([]);
   const [hotelData,setHotelData] = useState(null)
-  const [isModalVisible3, setModalVisible3] = useState(false); 
-  const [postDetails, setPostDetails] = useState({
   
-  hotelname: '',
-  Address: '',
-  Price: '',
-  city: '',
-  country: '',
-  describe: '',
-  Addon: '',
- 
-});
+  const [data,setData] = useState([]);
+
 
 
   
-const createNewPost = async () => {
-  const postID = random();
-  const UID = userID;
-  console.log(UID);
 
-  const { hotelname, Address, Price, city, country, describe, Addon } = postDetails;
-
-  function validateParams(params) {
-    for (const [key, value] of Object.entries(params)) {
-      if (value === undefined || value === null || value === '') {
-        throw new Error(`Parameter ${key} must be provided`);
-      }
-    }
-  }
-
-  const formData = new FormData();
-  try {
-    validateParams({
-      postID,
-      UID,
-      hotelname,
-      Address,
-      Price,
-      city,
-      country,
-      describe,
-      Addon,
-      selectedImages
-    });
-
-    let images = [...selectedImages];
-    if (images.length < 4) {
-      while (images.length < 4) {
-        images.push({ uri: '', fileName: 'placeholder.jpg', mimeType: 'image/jpeg' });
-      }
-    }
-
-    formData.append('PostID', postID);
-    formData.append('posterID', UID);
-    formData.append('hotelname', hotelname);
-    formData.append('Address', Address);
-    formData.append('Price', Price);
-    formData.append('city', city);
-    formData.append('country', country);
-    formData.append('describe', describe);
-    formData.append('Addon', Addon);
-
-    images.forEach(image => {
-      formData.append('file', {
-        uri: image.uri,
-        name: image.fileName || 'upload.jpg',
-        type: image.mimeType || 'image/jpeg',
-      });
-    });
-
-    console.log('Selected images:', selectedImages);
-
-    const res = await axios.post(`${baseUrl}/api/createpost`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    if (res.status === 201) {
-    
-      Alert.alert("Post created successfully");
-      setModalVisible2(false)
-
-    } else {
-      console.log('Error creating post', res.status);
-    }
-  } catch (error) {
-    console.error('Error uploading:', error.message);
-
-    if (error.response) {
-      console.log('Server responded with:', error.response.data.message || error.response.statusText);
-    } else if (error.request) {
-      console.log('No response received:', error.request);
-    } else {
-      console.log('Error in setup:', error.message);
-    }
-  }
-};
 
 
   const getUser = async (uid) => {
@@ -220,35 +130,6 @@ const createNewPost = async () => {
     }
   };
   
-  const pickImageAsyncMutilple = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission required', 'Sorry, we need camera roll permissions to make this work!');
-        return;
-      }
-
-      let images = [...selectedImages];
-      while (images.length < 4) { // Limit to 4 images
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.All,
-          allowsEditing: false,
-          quality: 1,
-        });
-
-        if (!result.canceled) {
-          images.push(result.assets[0]); // Save each image URI
-          setSelectedImages(images); // Update state
-        } else {
-          break; // Exit if user cancels
-        }
-      }
-
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Error', 'Could not pick images.');
-    }
-  };
 
 const handleSaveChanges = async (uid) => {
   const formData = new FormData();
@@ -292,7 +173,10 @@ const handleSaveChanges = async (uid) => {
     Alert.alert('Failed to update profile');
   }
 };
-
+const openupdatemodal = (data) =>{
+   setModalVisible2(true)
+   setData(data)
+}
 
 const renderUserPost = () => (
   <View style={styles.meetupList}>
@@ -315,7 +199,7 @@ const renderUserPost = () => (
           <Text style={styles.postRating}>⭐{item.rating}</Text>
         </View>
         <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={()=>openupdatemodal(item)} >
           <Icon name="pencil" size={20} color="blue" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
@@ -362,7 +246,7 @@ const getUserPost = async (userID) =>{
           userID: userID,
         },
       })
-      
+      console.log(res.data.images)
       setPostData(res.data)
       
       
@@ -416,6 +300,10 @@ useEffect(() => {
 
  
 }, [uid]);
+useEffect(()=>{
+  console.log(data)
+
+},[data])
 
   return (
     <ScrollView style={styles.container}>
@@ -462,10 +350,7 @@ useEffect(() => {
         <View style={styles.section}>
           <View style={styles.interestHeader}>
             <Text style={styles.sectionTitle}>Post</Text>
-            <TouchableOpacity style={styles.changeButton}>
-              <Icon name="pencil-outline" size={12} color="#4A55A2" />
-              <Text style={styles.changeButtonText} onPress={() => setModalVisible2(true)}>create Post</Text>
-            </TouchableOpacity>
+           
             
           </View>
         </View>
@@ -526,96 +411,13 @@ useEffect(() => {
   </View>
 </Modal>
 
-<Modal
-  visible={isModalVisible2}
+  <Modal visible={isModalVisible2}
   animationType="slide"
   transparent={true}
-  onRequestClose={() => setModalVisible2(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>CREATE A NEW POST</Text>
+  onRequestClose={() => setModalVisible2(false) }>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Hotel Name"
-          value={postDetails.hotelname}  
-          onChangeText={(text) => setPostDetails({ ...postDetails, hotelname: text })}
-          multiline
-        />
-        
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Address"
-          value={postDetails.Address} 
-          onChangeText={(text) => setPostDetails({ ...postDetails, Address: text })}
-          multiline
-        />
-        
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Price"
-          value={postDetails.Price} 
-          onChangeText={(text) => setPostDetails({ ...postDetails, Price: text })}
-          multiline
-        />
-        
-        <TextInput
-          style={styles.modalInput}
-          placeholder="City"
-          value={postDetails.city} 
-          onChangeText={(text) => setPostDetails({ ...postDetails, city: text })}
-          multiline
-        />
-        
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Country"
-          value={postDetails.country} 
-          onChangeText={(text) => setPostDetails({ ...postDetails, country: text })}
-          multiline
-        />
-        
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Description"
-          value={postDetails.describe} 
-          onChangeText={(text) => setPostDetails({ ...postDetails, describe: text })}
-          multiline
-        />
-        
-        <TextInput
-          style={styles.modalInput}
-          placeholder="Addon"
-          value={postDetails.Addon} 
-          onChangeText={(text) => setPostDetails({ ...postDetails, Addon: text })}
-          multiline
-        />
-        
-        <View style={styles.imageInputContainer}>
-          <Button title="Upload" onPress={pickImageAsyncMutilple} />
-        </View>
-        <ScrollView horizontal style={{ marginTop: 10 }}>
-        {selectedImages.map((uri, index) => (
-          <Image
-            key={index}
-            source={{ uri }}
-            style={{ width: 100, height: 100, margin: 5 }}
-          />
-        ))}
-      </ScrollView>
-
-        <View style={styles.modalButtons}>
-          <Button title="Save Changes" onPress={createNewPost} />
-          <Button title="Cancel" onPress={() => setModalVisible2(false)} color="red" />
-        </View>
-      </ScrollView>
-    </View>
-  </View>
-</Modal>
-
-
+   <UpdatePost data={data}></UpdatePost>
+  </Modal>
 
     </ScrollView>
   );
@@ -793,10 +595,10 @@ const styles = StyleSheet.create({
   },
   postContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'wheat',
     padding: 10,
     borderRadius: 10,
-    width: '90%',
+    width: '100%',
     marginTop: 10,
   },
   postImage: {

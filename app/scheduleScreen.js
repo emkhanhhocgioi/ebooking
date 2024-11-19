@@ -75,7 +75,7 @@ const ScheduleScreen = () => {
       }
 
       let images = [...selectedImages];
-      while (images.length < 2) { // Limit to 4 images
+      while (images.length < 2) { 
         const result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
           allowsEditing: false,
@@ -86,7 +86,7 @@ const ScheduleScreen = () => {
           images.push(result.assets[0]); 
           setSelectedIamges(images);
         } else {
-          break; // Exit if user cancels
+          break;
         }
       }
 
