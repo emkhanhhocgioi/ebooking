@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Modal, Button ,Platform} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Modal, Button,ScrollView ,Platform} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -18,16 +18,16 @@ const Orderlist = () => {
 
   const [UserID, setUserId] = useState('');
   const [Orderdata, setData] = useState(null);
-  const [orderStatuses, setOrderStatuses] = useState({}); // To store statuses of orders
-  const [isModalVisible, setModalVisible] = useState(false); // To manage modal visibility
-  const [selectedOrder, setSelectedOrder] = useState(null); // To store selected order for modal actions
+  const [orderStatuses, setOrderStatuses] = useState({}); 
+  const [isModalVisible, setModalVisible] = useState(false); 
+  const [selectedOrder, setSelectedOrder] = useState(null); 
 
-  // Fetch booked orders based on UserID
+
   useEffect(() => {
     if (uid) {
-      setUserId(uid); // Set UserID from route params
+      setUserId(uid); 
     }
-  }, [uid]);
+  }, []);
 
   useEffect(() => {
     if (UserID) {
@@ -60,6 +60,7 @@ const Orderlist = () => {
       );
       Alert.alert('Order Accepted!');
       setOrderStatuses((prev) => ({ ...prev, [id]: 'Accepted' })); 
+      getincomingBooked();
     } catch (error) {
       console.log('Error denying order:', error);
     }
@@ -84,6 +85,7 @@ const Orderlist = () => {
       );
       Alert.alert('Order Denied!');
       setOrderStatuses((prev) => ({ ...prev, [id]: 'Denied' })); 
+      getincomingBooked();
     } catch (error) {
       console.log('Error denying order:', error);
     }
@@ -106,6 +108,7 @@ const Orderlist = () => {
       );
       Alert.alert('Order Check In!');
       setOrderStatuses((prev) => ({ ...prev, [id]: 'Check in' })); 
+      getincomingBooked();
     } catch (error) {
       console.log('Error denying order:', error);
     }
@@ -128,6 +131,7 @@ const Orderlist = () => {
       );
       Alert.alert('Order Check out!');
       setOrderStatuses((prev) => ({ ...prev, [id]: 'Check out' })); 
+      getincomingBooked();
     } catch (error) {
       console.log('Error denying order:', error);
     }
@@ -178,7 +182,7 @@ const Orderlist = () => {
           <TouchableOpacity key={item.OrderID} style={styles.postContainer}
           onPress={() => {
             setSelectedOrder(item); 
-            // console.log(item)
+            
             setModalVisible(true); 
           }}
           >
@@ -218,82 +222,113 @@ const Orderlist = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headers}>
-        <Text style={styles.headersText}>Notification</Text>
-        <Icon style={styles.iconStyle} name="notifications-outline" size={20} />
-      </View>
+    <View style={styles.headers}>
+      <Text style={styles.headersText}>Notification</Text>
+      <Icon style={styles.iconStyle} name="notifications-outline" size={20} />
+    </View>
+  
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
       {Orderdata ? renderUserOrder() : <Text>There is nothing here...</Text>}
-
-      {/* Modal for Order Actions */}
+  
       {selectedOrder && (
-  <Modal
-    visible={isModalVisible}
-    animationType="slide"
-    transparent={true}
-    onRequestClose={() => setModalVisible(false)}
-  >
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContent}>
-        <Text style={styles.modalTitle}>Accepted this proposal?</Text>
-        <Text style={styles.modalMessage}>
-          {selectedOrder.tkDetails?.name}
-        </Text>
-        <Text style={styles.modalMessage}>
-          {selectedOrder.tkDetails?.email}
-        </Text>
-        <Text style={styles.modalMessage}>
-          {selectedOrder.tkDetails?.phoneNumber}
-        </Text>
-        
-        {selectedOrder.orderStatus === 'Accepted'||selectedOrder.orderStatus === 'Pending' ? (
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => CheckinOrder(selectedOrder.OrderID)}
-              >
-                <Icon name="checkmark" size={20} color="blue" />
-                <Text>Check In</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => CheckoutOrder(selectedOrder.OrderID)}
-              >
-                <Icon name="close" size={20} color="red" />
-                <Text>Check Out</Text>
-              </TouchableOpacity>
-              
-            </View>
-          ) : selectedOrder.orderStatus === 'Checkin' ? (
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => CheckoutOrder(selectedOrder.OrderID)}
-              >
-                <Icon name="close" size={20} color="red" />
-                <Text>Check Out</Text>
-              </TouchableOpacity>
-              
-            
-            </View>
-          ) : (
-            <View style={styles.modalButtons}>
-              <Text style={styles.infoText}>
-                No actions available for this order status.
-              </Text>
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>Booking Details</Text>
+            <View style={styles.modalRow}>
+                    <View style={styles.detailColumn}>
+                      <Text style={styles.modalMessage}>Owner ID: {selectedOrder.OwnerID}</Text>
+                      <Text style={styles.modalMessage}>Hotel ID: {selectedOrder.HotelID}</Text>
+                      <Text style={styles.modalMessage}>
+                        Check-in date: {new Date(selectedOrder.Checkindate).toLocaleDateString()}
+                      </Text>
+                      <Text style={styles.modalMessage}>
+                        Check-out date: {new Date(selectedOrder.Checkoutdate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View style={styles.detailColumn}>
+                      <Text style={styles.modalMessage}>
+                        Username: {selectedOrder.tkDetails?.name}
+                      </Text>
+                      <Text style={styles.modalMessage}>
+                        email: {selectedOrder.tkDetails?.email}
+                      </Text>
+                      <Text style={styles.modalMessage}>
+                        phone number: {selectedOrder.tkDetails?.phoneNumber}
+                      </Text>
+                    </View>
+                  </View>
+  
+              {selectedOrder.orderStatus === 'Accepted' ? (
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => CheckinOrder(selectedOrder.OrderID)}
+                  >
+                    <Icon name="checkmark" size={20} color="blue" />
+                    <Text>Check In</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => CheckoutOrder(selectedOrder.OrderID)}
+                  >
+                    <Icon name="close" size={20} color="red" />
+                    <Text>Check Out</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : selectedOrder.orderStatus === 'Pending' ? (
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => AcceptedBooked(selectedOrder.OrderID)}
+                  >
+                    <Icon name="checkmark" size={20} color="blue" />
+                    <Text>Accepted</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => DeniedBooked(selectedOrder.OrderID)}
+                  >
+                    <Icon name="close" size={20} color="blue" />
+                    <Text>Denied</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : selectedOrder.orderStatus === 'Checkin' ? (
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => CheckoutOrder(selectedOrder.OrderID)}
+                  >
+                    <Icon name="close" size={20} color="red" />
+                    <Text>Check Out</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.modalButtons}>
+                  <Text style={styles.infoText}>
+                    No actions available for this order status.
+                  </Text>
+                  <TouchableOpacity onPress={() => setModalVisible(false)}>
+                    <Text style={styles.closeModal}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+  
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeModal}>Close</Text>
+                <Text style={styles.closeModal}>Cancel</Text>
               </TouchableOpacity>
             </View>
-          )}
-        <TouchableOpacity onPress={() => setModalVisible(false)}>
-          <Text style={styles.closeModal}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-      
-    </View>
-  </Modal>
-)}
-    </View>
+          </View>
+        </Modal>
+      )}
+    </ScrollView>
+  </View>
+  
   );
 };
 
@@ -304,7 +339,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headers: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'wheat',
     padding: 15,
     borderRadius: 10,
     flexDirection: 'row',
@@ -315,7 +350,7 @@ const styles = StyleSheet.create({
   headersText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: 'blacks',
   },
   iconStyle: {
     color: '#fff',
@@ -365,11 +400,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
+    width: '90%',
     backgroundColor: 'white',
-    padding: 20,
     borderRadius: 10,
-    alignItems: 'center',
-    width: 300,
+    padding: 20,
+  },
+  modalHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+    color: 'black',
   },
   modalTitle: {
     fontSize: 18,
@@ -378,16 +419,36 @@ const styles = StyleSheet.create({
   },
   modalMessage: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 5,
+  },
+  modalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  detailColumn: {
+    width: '45%',
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 10,
+    marginTop: 20,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  infoText: {
+    fontSize: 16,
+    color: 'gray',
+    textAlign: 'center',
   },
   closeModal: {
-    color: 'red',
+    color: 'blue',
+    textAlign: 'center',
     marginTop: 10,
     fontSize: 16,
   },

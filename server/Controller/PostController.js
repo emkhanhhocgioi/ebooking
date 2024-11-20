@@ -1,6 +1,7 @@
 
-const Post = require('../Model/PostModel')
-const Review = require('../Model/ReviewModel')
+const Post = require('../Model/PostModel');
+const Review = require('../Model/ReviewModel');
+const Follow = require("../Model/FollowModel");
 const { GridFSBucket } = require('mongodb');
 const mongoose = require('mongoose');
 const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
@@ -105,6 +106,57 @@ const fecthUserPost = async (req, res) => {
         console.error('Error fetching user post:', error);
         res.status(500).json({ error: 'Server error', details: error.message });
     }
+};
+const fetchUserFollowed = async (req, res) => {
+  const { userID } = req.query;
+
+  if (!userID) {
+    console.log('No user ID');
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    const followlist = await Follow.find({ userid: userID });
+
+    if (followlist.length > 0) {
+      const files = await gfs.find().toArray().catch(error => {
+        console.error('Error fetching files:', error);
+        return [];
+      });
+
+      const formattedDocuments = await Promise.all(followlist.map(async doc => {
+        const documents = await Post.find({ PostID: doc.followid });
+        const imgarr = files
+          .filter(file => file.metadata && file.metadata.postID === doc.followid)
+          .filter(file => file.contentType === 'image/jpeg' || file.contentType === 'image/png')
+          .map(file => `/api/getpostimg?imgid=${file._id}`);
+
+        return documents.map(fl => {
+       
+          return {
+            PostID: fl.PostID,
+            HotelName: fl.HotelName,
+            Address: fl.Address,
+            price: fl.price,
+            city: fl.city,
+            country: fl.country,
+            describe: fl.describe,
+            addon: fl.addon,
+            rating: fl.rating,
+            images: imgarr
+          };
+        });
+      }));
+      const flattenedDocuments = formattedDocuments.flat();
+
+      res.json({ post: flattenedDocuments });
+    } else {
+      res.status(404).json({ error: 'Post not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching user follow:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
+  }
 };
 
 const fecthAllPost = async (req, res) => {
@@ -289,7 +341,7 @@ const sortingPost = async (req, res) => {
     }
   };
   
-  const updatePost = async (req, res) => {
+const updatePost = async (req, res) => {
     const { PostID, HotelName, Address, price, city, country, describe, addon } = req.body;
   
     // Kiểm tra dữ liệu yêu cầu
@@ -325,7 +377,7 @@ const sortingPost = async (req, res) => {
       return res.status(200).json({ message: 'Data update successful', hotel: docs });
     } catch (error) {
       console.error(error);
-      return res.status(500).send("Error updating hotel data"); // Dùng return để kết thúc hàm
+      return res.status(500).send("Error updating hotel data"); 
     }
   };
   
@@ -363,7 +415,10 @@ const deleteExistPostimg = async (req, res) => {
   }
 };
 
+
+
 module.exports  = {createPost,fecthUserPost,
     fecthAllPost,renderPostImage,
     countrating,
-    sortingPost,updatePost,deleteExistPostimg}
+    sortingPost,updatePost,deleteExistPostimg,
+    fetchUserFollowed}

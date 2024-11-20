@@ -42,9 +42,7 @@ const DestinationScreen = () => {
         <Text style={styles.city}>{item.destname}</Text>
         <Text style={styles.description}>{item.desc}</Text>
       </View>
-      <View style={styles.priceContainer}>
-        <Text style={styles.price}>{item.price}</Text>
-      </View>
+     
     </View>
   );
   useEffect(() => {
@@ -81,14 +79,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  searchInput: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-  },
   subtitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -98,42 +88,32 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
+    flexDirection: 'column', 
+    alignItems: 'flex-start',
+    backgroundColor: 'wheat',
     borderRadius: 10,
     marginBottom: 15,
     overflow: 'hidden',
-    padding: 10,
+    padding: 10, 
   },
   image: {
-    width: 60,
-    height: 60,
+    width: '100%',
+    height: 200,
     borderRadius: 10,
-    marginRight: 15,
+    marginBottom: 10, 
   },
   info: {
     flex: 1,
+    justifyContent: 'flex-start', 
   },
   city: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
   },
   description: {
     fontSize: 14,
     color: '#555',
-  },
-  priceContainer: {
-    backgroundColor: '#000',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-  },
-  price: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
 });
 

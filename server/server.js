@@ -6,6 +6,8 @@ const routerOrder = require('./routes/OrderRoutes');
 const PostRoutes = require('./routes/PostRoutes')
 const routerReview = require('./routes/ReviewRoutes') ;
 const routerAdmin = require('./routes/AdminRoutes')
+const routerGmail = require('./routes/gmailRoutes') ;
+
 const cors = require('cors');
 
 const app = express();
@@ -17,8 +19,9 @@ app.use('/api/', accountRoutes);
 app.use('/api/', routerOrder)
 app.use('/api/', routerReview)
 app.use('/api/', routerAdmin)
+app.use('/api/', routerGmail)
 
-// MongoDB connection
+
 mongoose.connect('mongodb://localhost:27017/hardwaredb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,

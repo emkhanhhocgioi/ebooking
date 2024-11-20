@@ -37,7 +37,7 @@ const ProfileScreen = () => {
   //for profile update
   const [isModalVisible, setModalVisible] = useState(false); 
   const [isModalVisible2, setModalVisible2] = useState(false); 
-  const [newEmail, setNewEmail] = useState('');
+ 
   const [newDesc, setNewDesc] = useState('');
    
   const [imageUri, setImageUri] = useState(null);
@@ -139,7 +139,6 @@ const handleSaveChanges = async (uid) => {
 
   formData.append('uid',uid)
   formData.append('username', uname);
-  formData.append('email', newEmail);
   formData.append('desc', newDesc);
   if (file) {
     formData.append('file', {
@@ -305,6 +304,7 @@ useEffect(()=>{
 
 },[data])
 
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -376,13 +376,7 @@ useEffect(()=>{
     <View style={styles.modalContent}>
       <Text style={styles.modalTitle}>Edit Profile</Text>
 
-      {/* Email input */}
-      <TextInput
-        style={styles.modalInput}
-        placeholder={email}
-        value={newEmail}
-        onChangeText={setNewEmail}
-      />
+   
 
       {/* Description input */}
       <TextInput

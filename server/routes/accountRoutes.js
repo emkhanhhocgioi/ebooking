@@ -36,19 +36,19 @@ const upload = multer({
 
 
 
-const { signup, login, getUserData, signupPartner, uploadProfile ,getUserProfileImage } = require('../Controller/AccountController');
+const { signup, login, getUserData, signupPartner, uploadProfile ,getUserProfileImage,resetPassword } = require('../Controller/AccountController');
 
 
 
 
-// POST route for profile upload
+
 router.post('/upload/profile', upload.single('file'), uploadProfile);
 router.get('/image',getUserProfileImage)
-// Other routes
 router.get('/getUserData', getUserData);
 router.post('/signup', signup);
 router.post('/signupPartner', signupPartner);
 router.post('/login', login);
+router.post('/chagnepassword',resetPassword);
 
 
 module.exports = router;

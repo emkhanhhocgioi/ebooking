@@ -3,7 +3,7 @@ const routerAdmin = express.Router();
 const {admingettk,getHotel,
     getOrder,getReview,
 deletetk,deletehotel,deleteReview,deleteOrder,
-createDestination,renderDestinationImg,renderDestination}  = require('../Controller/AdminController') ;
+createDestination,renderDestinationImg,renderDestination,deletDestination}  = require('../Controller/AdminController') ;
 
 
 const multer = require('multer');
@@ -40,5 +40,6 @@ routerAdmin.get('/admin/getorder',getOrder)
 routerAdmin.post('/admin/deleteOrder',deleteOrder)
 routerAdmin.get('/admin/getreview',getReview)
 routerAdmin.post('/admin/deleteReview',deleteReview)
+routerAdmin.post('/admin/deleteDest',deletDestination)
 
 module.exports = routerAdmin;

@@ -40,7 +40,7 @@ const deletetk = async (req, res) => {
 
     try {
 
-        const doc = await taikhoan.findByIdAndDelete(id);
+        const doc = await taikhoan.findByIdAndDelete({_id:id});
         if (doc) {
 
             return res.status(200).json({ message: "Tài khoản đã được xóa thành công.", data: doc });
@@ -102,22 +102,23 @@ const getHotel = async (req, res) => {
     }
 };
 const deletehotel = async (req, res) => {
-    const { id } = req.query;
-
+    const { id } = req.body; 
+    console.log(req.body)
     try {
+      
+        const doc = await Post.findOneAndDelete({ PostID: id });
 
-        const doc = await Post.findByIdAndDelete(id);
         if (doc) {
-
             return res.status(200).json({ message: "Tài khoản đã được xóa thành công.", data: doc });
         } else {
-
             return res.status(404).json({ message: "Không tìm thấy tài khoản với ID này." });
         }
     } catch (err) {
-     
         console.error(err);
-        return res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình xóa.", error: err.message });
+        return res.status(500).json({
+            message: "Đã xảy ra lỗi trong quá trình xóa.",
+            error: err.message
+        });
     }
 };
 
@@ -176,11 +177,11 @@ const getReview = async(req,res) =>{
     }
 }
 const deleteReview = async (req, res) => {
-    const { id } = req.query;
-
+    const { id } = req.body;
+    console.log(req.body)
     try {
 
-        const doc = await Order.findByIdAndDelete(id);
+        const doc = await Order.findOneAndDelete(id);
         if (doc) {
 
             return res.status(200).json({ message: "Tài khoản đã được xóa thành công.", data: doc });
@@ -291,9 +292,29 @@ const renderDestinationImg = async (req,res) =>{
     }
 
 }
+const deletDestination = async (req,res) =>{
+    const { id } = req.body;
+    console.log(req.body)
+    try {
+
+        const doc = await Dest.findByIdAndDelete(id);
+        if (doc) {
+
+            return res.status(200).json({ message: "Tài khoản đã được xóa thành công.", data: doc });
+        } else {
+
+            return res.status(404).json({ message: "Không tìm thấy tài khoản với ID này." });
+        }
+    } catch (err) {
+     
+        console.error(err);
+        return res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình xóa.", error: err.message });
+    }
+}
 module.exports ={admingettk,deletetk,
     getHotel,deletehotel,
     getOrder,getReview,
     deleteReview,deleteOrder,
     createDestination,
-    renderDestinationImg,renderDestination}
+    renderDestinationImg,renderDestination,deletDestination
+}

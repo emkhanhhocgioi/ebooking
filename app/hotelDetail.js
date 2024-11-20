@@ -177,10 +177,6 @@ useEffect(() => {
             
         
           </View>
-          <TouchableOpacity style={styles.amenityItem}>
-          <Image source={require('C:/Users/hidra/GK2/assets/images/heart.jpg')} style={styles.heartIcon} />
-          <Text style={styles.amenityText}>Favourite</Text>
-        </TouchableOpacity>
           
           <View style={styles.amenityItem}>
             <Text style={styles.ratingText}>{rating}⭐</Text>

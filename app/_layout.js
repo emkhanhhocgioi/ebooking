@@ -20,6 +20,7 @@ import SignUpScreenPartner from './auth/SignupScreenP';
 import Dashboard from './admin/AdminDashboard';
 import DestinationScreen from './blog/DestinationScreen';
 import LoginScreen from './auth/LoginSceen';
+import ForgotPasswordScreen from './auth/ForgotPassword';
 const Stack = createNativeStackNavigator();
 
 
@@ -34,6 +35,7 @@ const App = () => {
         
           <Stack.Screen name="login" component={LoginScreen} options={{ headerShown: false}} />
           <Stack.Screen name="signup" component={SignUpScreenCustomer} options={{ headerShown: false}} />
+          <Stack.Screen name="forgotpassword" component={ForgotPasswordScreen} options={{ headerShown: false}}/>
           <Stack.Screen name="home" component={Homscreen} options={{ headerShown: false}} />
           <Stack.Screen name="signupP" component={SignUpScreenPartner} options={{ headerShown: false}}/>
           <Stack.Screen name="hoteldetail" component={HotelDetailScreen} options={{ headerShown: false}}/>

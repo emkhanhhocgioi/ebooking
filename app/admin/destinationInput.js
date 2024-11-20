@@ -69,7 +69,7 @@ const DestinationInput = () => {
       });
       if (res.data) {
         alert('Create new Destination success');
-        getDestinationData(); // Reload the data after creation
+        getDestinationData();
       }
     } catch (error) {
       console.error('Error creating destination:', error);
@@ -81,6 +81,32 @@ const DestinationInput = () => {
     const file = event.target.files[0];
     if (file) {
       setImage(file);
+    }
+  };
+  const deleteData = async (oid) => {
+    const data = { id: oid }; 
+    
+    try {
+      const res = await axios.post(
+        `${baseUrl}/api/admin/deleteDest`,
+        data, 
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (res.status === 200) {
+        alert('Delete success');
+     
+        setData((prevData) => prevData.filter(item => item.id !== oid));
+      } else {
+        alert('Failed to delete');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete');
     }
   };
 
@@ -124,7 +150,7 @@ const DestinationInput = () => {
               <Text style={styles.listItemText}>{item.desc}</Text>
             </View>
             <View style={styles.listItemColumn}>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteData(item._id)}>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteData(item.id)}>
                 <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
             </View>

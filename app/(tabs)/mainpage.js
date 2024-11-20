@@ -116,9 +116,7 @@ const handleSort = () =>{
         <TouchableOpacity style={styles.iconButton} onPress={handleDestExplore} >
           <Icon name="earth" size={24} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
-          <Icon name="heart-outline" size={24} color="#000" />
-        </TouchableOpacity>
+       
         <TouchableOpacity style={styles.iconButton} onPress={handleDestPress}  >
           <Icon name="triangle-outline" size={24} color="#000" />
         </TouchableOpacity>

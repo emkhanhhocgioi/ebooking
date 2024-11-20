@@ -23,8 +23,6 @@ const UserList = () => {
       );
       if (res) {
         Alert.alert('Delete success');
-        
-      
         setData(prevData => prevData.filter(item => item.id !== oid));
       }
     } catch (error) {
@@ -32,7 +30,6 @@ const UserList = () => {
       Alert.alert('Failed to delete');
     }
   };
-
 
   const getUserData = async () => {
     try {
@@ -46,31 +43,82 @@ const UserList = () => {
     }
   };
 
+  const countRoles = () => {
+    return data.reduce((acc, user) => {
+      acc[user.urole] = acc[user.urole] ? acc[user.urole] + 1 : 1;
+      return acc;
+    }, {});
+  };
+
   useEffect(() => {
     getUserData();
   }, []);  
 
-  return (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => item.id.toString()} 
-      renderItem={({ item }) => (
-        <View style={styles.listItem}>
-          <Text style={styles.listItemText}>{item.Username}</Text>
-          <Text style={styles.listItemText}>{item.Email}</Text>
-          <Text style={styles.listItemText}>{item.PhoneNumber}</Text>
-          <Text style={styles.listItemText}>{item.urole}</Text>
+  const roleCounts = countRoles();
 
-          <TouchableOpacity style={styles.deleteButton} onPress={() => deleteData(item.id)}>
-            <Text style={styles.deleteButtonText}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    />
+  return (
+    <View style={styles.container}>
+      <View style={styles.countBox}>
+        <Text style={styles.countText}>Total Users: {data.length}</Text>
+        {Object.keys(roleCounts).map((role) => (
+          <Text key={role} style={styles.countText}>
+            {role === '1' ? (
+              <>Hotel Owner: {roleCounts[role]}</>
+            ) : (
+              <>Customer: {roleCounts[role]}</>
+            )}
+          </Text>
+        ))}
+      </View>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerText}>Username</Text>
+        <Text style={styles.headerText}>Email</Text>
+        <Text style={styles.headerText}>Phonenumber</Text>
+        <Text style={styles.headerText}>Userrole</Text>
+       
+      </View>
+      {/* FlatList displaying the users */}
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.id.toString()} 
+        renderItem={({ item }) => (
+          <View style={styles.listItem}>
+            <Text style={styles.listItemText}>{item.Username}</Text>
+            <Text style={styles.listItemText}>{item.Email}</Text>
+            <Text style={styles.listItemText}>{item.PhoneNumber}</Text>
+            <Text style={styles.listItemText}>{item.urole}</Text>
+
+            <TouchableOpacity style={styles.deleteButton} onPress={() => deleteData(item.id)}>
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+  countBox: {
+    backgroundColor: '',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+    width: "100%",
+    height: 500,
+    flexDirection: 'row',
+    justifyContent: 'space-around',  
+    alignItems: 'center', 
+    borderWidth:2,
+  },
+  countText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   listItem: {
     flexDirection: 'row',  
     justifyContent: 'space-between', 
@@ -92,6 +140,19 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontSize: 14,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: '#ddd',
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
   },
 });
 

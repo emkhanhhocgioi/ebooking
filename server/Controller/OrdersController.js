@@ -54,7 +54,7 @@ const   getUserOrders = async (req, res) => {
     try {
       const docs = await Order.find({
         OwnerID: userID,
-        orderStatus: { $in: ['Pending', 'Accepted','Checkin','Checkout'] }
+        orderStatus: { $in: ['Pending', 'Accepted','Checkin'] }
       });
 
       if (docs.length > 0) {
@@ -74,7 +74,7 @@ const   getUserOrders = async (req, res) => {
        
         const documentOrders = await Promise.all(
           documents.map(async (doc) => {
-            // Fetch user details
+     
             const Userdoc = await Taikhoan.find({ _id: doc.UserID });
       
             if (Userdoc.length === 0) {
@@ -82,7 +82,7 @@ const   getUserOrders = async (req, res) => {
               return []; 
             }
       
-            // Map user details into the final object
+        
             return Userdoc.map((tk) => ({
               OrderID: doc.OrderID,
               UserID: doc.UserID,
@@ -173,10 +173,10 @@ const   getUserOrders = async (req, res) => {
   
       
       if (!doc) {
-        return res.status(404).json({ message: 'No Order found' });  // Changed to 404 for "not found"
+        return res.status(404).json({ message: 'No Order found' });  
       }
   
-      // Respond with a success message if update is successful
+      
       return res.status(200).json({ message: 'Order Accepted', order: doc });
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -204,10 +204,10 @@ const   getUserOrders = async (req, res) => {
   
       
       if (!doc) {
-        return res.status(404).json({ message: 'No Order found' });  // Changed to 404 for "not found"
+        return res.status(404).json({ message: 'No Order found' });  
       }
   
-      // Respond with a success message if update is successful
+
       return res.status(200).json({ message: 'Order Accepted', order: doc });
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -259,7 +259,7 @@ const   getUserOrders = async (req, res) => {
       
       const postdoc = await Order.find({
         UserID: userID,
-        orderStatus: { $in: ['Accepted', 'Checkin', 'Checkout'] }
+        orderStatus: { $in: ['Accepted', 'Checkin'] }
       });
       
   

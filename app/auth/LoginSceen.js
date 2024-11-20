@@ -91,7 +91,7 @@ const LoginScreen = () => {
         
         <View style={styles.footer}>
           <Text style={styles.footerText}>Forgot password? </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() =>{navigation.navigate('forgotpassword')}}>
             <Text style={styles.footerLink}>Get new</Text>
           </TouchableOpacity>
         </View>
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 8,
-        marginBottom: 20, // Increased spacing between button and footer
+        marginBottom: 20, 
       },
       buttonText: {
         color: '#fff',

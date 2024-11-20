@@ -234,7 +234,7 @@ const editProfile = async (req, res) => {
 };
 
 const uploadProfile = async (req, res) => {
-  const { uid, username, email, desc } = req.body;
+  const { uid, username, desc } = req.body;
 
   console.log(req.body);
  
@@ -252,7 +252,6 @@ const uploadProfile = async (req, res) => {
       { Username: username },
       { 
         $set: { 
-          Email: email, 
           Desc: desc, 
           imgProfile: req.file.id 
         }
@@ -267,7 +266,24 @@ const uploadProfile = async (req, res) => {
     res.status(500).send("Error updating user data");
   }
 };
+const resetPassword= async(req,res) =>{
+  const{email,newpassword} =req.body;
+  if(!email || !newpassword){
+    console.log('missing required field')
+  } 
+  try {
+    const doc = await taikhoan.findOneAndUpdate({Email:email},
+      { $set: { Password: newpassword } },
+      {new:true})
+      if (!doc) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    return res.json({ message: 'Password has been updated successfully' });
+
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 
-
-module.exports = { signup, login, getUserData, editProfile, uploadProfile, getUserProfileImage,signupPartner };
+module.exports = { signup, login, getUserData, editProfile, uploadProfile, getUserProfileImage,signupPartner,resetPassword };
