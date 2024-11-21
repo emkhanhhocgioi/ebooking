@@ -2,6 +2,15 @@
 const Post = require('../Model/PostModel');
 const Review = require('../Model/ReviewModel');
 const Follow = require("../Model/FollowModel");
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+
+const geminiApiKey = 'AIzaSyBqc9mH68VLJ8WmJPBD6gtzjxibROr_IwQ'; 
+  
+
+const genAI = new GoogleGenerativeAI(geminiApiKey); 
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 const { GridFSBucket } = require('mongodb');
 const mongoose = require('mongoose');
 const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
@@ -414,11 +423,51 @@ const deleteExistPostimg = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+const getgptdata = async (req, res) => {
+  const { prompt } = req.query;
 
+  if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+  }
+
+  try {
+    const docs = await Post.find({});
+    const datadocs = await Promise.all(
+      docs.map(async (doc) => {
+        const ratings = await Review.find({ HotelID: doc.PostID });
+        let averageRating = 0; 
+        
+        if (ratings.length > 0) {
+          const totalRating = ratings.reduce((sum, rate) => sum + rate.rating, 0);
+          averageRating = totalRating / ratings.length;
+        }
+        
+        return {
+          hotelid: doc.PostID,
+          HotelName: doc.HotelName,
+          Address: `${doc.Address}, ${doc.city}, ${doc.country}`,
+          rating: averageRating,
+        };
+      })
+    );
+    
+    const jsonResult = JSON.stringify(datadocs, null, 2);
+    
+    const result = await model.generateContent(prompt + ' send data which is in ' + jsonResult + ' only');
+    
+    
+    const text = result|| "No content available";
+
+    return res.status(200).json({text: text });
+  } catch (error) {
+    console.error("Error generating content:", error);
+    return res.status(500).json({ success: false, error: "Failed to generate content" });
+  }
+};
 
 
 module.exports  = {createPost,fecthUserPost,
     fecthAllPost,renderPostImage,
     countrating,
     sortingPost,updatePost,deleteExistPostimg,
-    fetchUserFollowed}
+    fetchUserFollowed,getgptdata}

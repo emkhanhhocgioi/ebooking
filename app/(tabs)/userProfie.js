@@ -201,7 +201,7 @@ const renderUserPost = () => (
         <TouchableOpacity style={styles.actionButton} onPress={()=>openupdatemodal(item)} >
           <Icon name="pencil" size={20} color="blue" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton}onPress={()=>deleteData(item.PostID)}>
           <Icon name="trash" size={20} color="red" />
         </TouchableOpacity>
       </View>
@@ -228,7 +228,32 @@ const renderhistory = () => {
     </View>
   );
 };
+const deleteData = async (oid) => {
+  const data = { id: oid }; 
+  
+  try {
+    const res = await axios.post(
+      `${baseUrl}/api/admin/deletehotel`,
+      data, 
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
+    if (res.status === 200) {
+      alert('Delete success');
+   
+      setData((prevData) => prevData.filter(item => item.PostID !== oid));
+    } else {
+      alert('Failed to delete');
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Failed to delete');
+  }
+};
 const getUserPost = async (userID) =>{
       if(!userID){
         console.log('not found userID')

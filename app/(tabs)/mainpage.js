@@ -7,6 +7,7 @@ import axios from 'axios';
 import DestinationScreen from '../blog/DestinationScreen';
 import SortingScreen from '../blog/SortingPost';
 import { useRoute } from '@react-navigation/native';
+import ChatScreen from '../ai/ChatOpenaiScreen';
 let baseUrl = "http://localhost:5000";
 if (Platform.OS === "android") {
   baseUrl = "http://10.0.2.2:5000";
@@ -104,6 +105,9 @@ const handleSort = () =>{
   setSortVis(true)
   setScreenType(1)
 }
+const handleChatBox = () =>{
+  setScreenType(4)
+}
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -121,18 +125,23 @@ const handleSort = () =>{
           <Icon name="triangle-outline" size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton}  onPress={handleSort}>
+          <Icon name="search-sharp" size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton}  onPress={handleChatBox}>
           <Icon name="happy-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
-              {
-              ScreenType === 0 ? (
-                meetups && meetups.posts ? renderMeetups() : <Text>Loading...</Text>
-              ) : ScreenType === 2 ? (
-                 <DestinationScreen></DestinationScreen>
-              ): ScreenType === 1 ?(
-                <SortingScreen></SortingScreen>
-              ) : null
-            }
+      {
+  ScreenType === 0 ? (
+    meetups && meetups.posts ? renderMeetups() : <Text>Loading...</Text>
+  ) : ScreenType === 2 ? (
+    <DestinationScreen />
+  ) : ScreenType === 1 ? (
+    <SortingScreen />
+  ) : ScreenType === 4 ? (
+    <ChatScreen></ChatScreen>
+  ) : null
+}
       {/* Render meetups only if they are available */}
     
        

@@ -7,7 +7,9 @@ const { route } = require('./accountRoutes');
 
 const {createPost,fecthUserPost, fecthAllPost,
    renderPostImage
-  ,countrating,sortingPost,updatePost,deleteExistPostimg,fetchUserFollowed} = require('../Controller/PostController')
+  ,countrating,sortingPost,updatePost,deleteExistPostimg,fetchUserFollowed,
+  getgptdata} = require('../Controller/PostController')
+
 // MongoDB connection string
 
 const storage = new GridFsStorage({
@@ -47,4 +49,5 @@ routerPost.post('/getpost/sorted',sortingPost)
 routerPost.post('/updatepost',upload.array('file',4),updatePost)
 routerPost.post('/delete/postexistimg',deleteExistPostimg)
 routerPost.get('/fetchUserFollowed',fetchUserFollowed)
+routerPost.get('/gemini/generate',getgptdata)
 module.exports = routerPost;
