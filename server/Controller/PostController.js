@@ -453,7 +453,7 @@ const getgptdata = async (req, res) => {
     
     const jsonResult = JSON.stringify(datadocs, null, 2);
     
-    const result = await model.generateContent(prompt + ' send data which is in ' + jsonResult + ' only');
+    const result = await model.generateContent(prompt + ' send data which is in ' + jsonResult + ' as a detail post');
     
     
     const text = result|| "No content available";

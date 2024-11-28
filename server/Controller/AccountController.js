@@ -2,7 +2,7 @@ const taikhoan = require('../Model/accounts');
 const mongoose = require('mongoose');
 const { GridFSBucket } = require('mongodb');
 const {Types} = require('mongoose');
-
+const Subscript =require('../Model/PreniumModel') ;
 const conn = mongoose.createConnection('mongodb://localhost:27017/hardwaredb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -43,7 +43,7 @@ const signup = async (req, res) => {
             Username: uname,
             Email: email,
             Password: password,
-            urole: 1,
+            urole: 2,
             Desc: ' ',
             PhoneNumber:PhoneNumber,
             followercount: 0,
@@ -72,28 +72,44 @@ const signupPartner = async (req, res) => {
   if (!PhoneNumber) {
     return res.status(400).json({ message: 'phone number is required' });
 }
-  try {
-      const existingUser = await taikhoan.findOne({ Email: email });
-      if (existingUser) {
-          return res.status(400).json({ message: 'User already exists' });
-      } 
-      const newtk = new taikhoan({
-          Username: uname,
-          Email: email,
-          Password: password,
-          urole: 2,
-          Desc: ' ',
-          PhoneNumber:PhoneNumber,
-          followercount: 0,
-          followingcount: 0,
-          imgProfile: ' ',
-      });
-      await newtk.save();
-      return res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Server error' });
+try {
+  const existingUser = await taikhoan.findOne({ Email: email });
+  if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
   }
+
+
+  const newtk = new taikhoan({
+      Username: uname,
+      Email: email,
+      Password: password,
+      urole: 1,
+      Desc: ' ',
+      PhoneNumber: PhoneNumber,
+      followercount: 0,
+      followingcount: 0,
+      imgProfile: ' ',
+  });
+
+  
+  await newtk.save();
+
+ 
+  const newSubscript = new Subscript({
+      Userid: newtk._id,  
+      status: 0,
+      signupdate: new Date(),
+      expiredate: new Date(),
+  });
+
+
+  await newSubscript.save();
+
+  return res.status(201).json({ message: 'User created and subscribed successfully' });
+} catch (error) {
+  console.error(error);
+  return res.status(500).json({ message: 'Server error' });
+}
 };
 
 

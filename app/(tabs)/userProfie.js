@@ -360,6 +360,10 @@ useEffect(()=>{
           <Icon name="pencil-outline" size={16} color="#4A55A2" />
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.editButton}>
+          <Icon name="pencil-outline" size={16} color="#4A55A2" />
+          <Text style={styles.editButtonText}>Prenium subscription</Text>
+        </TouchableOpacity>
         
       </View>
 

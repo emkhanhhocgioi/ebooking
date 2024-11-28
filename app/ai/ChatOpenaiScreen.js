@@ -15,12 +15,12 @@ const ChatScreen = () => {
 
   const handleSendMessage = async () => {
     if (message.trim() === '') return;
-
-    // Thêm tin nhắn của người dùng vào chat
-    const newMessage = { name: 'user', text: message };
+  
+    // Thêm tin nhắn của người dùng vào chat với id duy nhất
+    const newMessage = { id: Date.now().toString(), name: 'user', text: message };
     setChatHistory((prevChat) => [...prevChat, newMessage]);
     setMessage('');
-
+  
     try {
       // Gửi yêu cầu tới API
       const res = await axios.get(`${baseUrl}/api/gemini/generate`, {
@@ -31,10 +31,11 @@ const ChatScreen = () => {
           prompt: message,
         },
       });
-
-      
-      const botMessages = res.data?.text?.response?.candidates[0]?.content?.parts[0]?.text || 'No response from bot';
-      
+  
+      const botMessages =
+        res.data?.text?.response?.candidates[0]?.content?.parts[0]?.text || 'No response from bot';
+  
+      // Thêm tin nhắn của bot vào chat với id duy nhất
       setChatHistory((prevChat) => [
         ...prevChat,
         { id: Date.now().toString(), text: botMessages, sender: 'bot' },
@@ -51,13 +52,8 @@ const ChatScreen = () => {
       ]);
     }
   };
-  const hotelDatares = () => {
-    return (
-      <TouchableOpacity style={styles.button} onPress={() => alert('Button Pressed')}>
-        <Text style={styles.buttonText}>Nhấn vào đây</Text>
-      </TouchableOpacity>
-    );
-  }
+  
+ 
 
   return (
     <View style={styles.container}>

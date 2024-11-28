@@ -3,7 +3,7 @@ import { View,Button, Text,TextInput,Alert, Image, ScrollView, Platform, Touchab
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-
+let baseUrl = 'http://localhost:5000'
 if (Platform.OS === "android") {
   baseUrl = "http://10.0.2.2:5000";
 } else if (Platform.OS === "ios") {
